@@ -1,0 +1,58 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  
+  <div class="mb-8 flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">
+        <%= @organization ? @organization.name : "No Organization" %>
+      </h1>
+      <p class="text-gray-600">Welcome back, <%= @user.email_address %> (<%= @user.role %>)</p>
+    </div>
+    
+    <%= button_to "Log out", session_path, method: :delete, class: "rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700 font-medium" %>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-lg shadow border border-gray-100">
+      <h3 class="text-sm font-medium text-gray-500 uppercase">Facilities</h3>
+      <p class="mt-2 text-3xl font-bold text-gray-900"><%= @facilities.count %></p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow border border-gray-100">
+      <h3 class="text-sm font-medium text-gray-500 uppercase">Staff Members</h3>
+      <p class="mt-2 text-3xl font-bold text-gray-900"><%= @organization&.users&.count || 0 %></p>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow border border-gray-100">
+      <h3 class="text-sm font-medium text-gray-500 uppercase">Your Access Level</h3>
+      <span class="mt-2 inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+        <%= @user.role.humanize %>
+      </span>
+    </div>
+  </div>
+
+  <div class="bg-white shadow rounded-lg overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900">Your Facilities</h3>
+    </div>
+    <ul role="list" class="divide-y divide-gray-200">
+      <% if @facilities.any? %>
+        <% @facilities.each do |facility| %>
+          <li class="px-6 py-4 hover:bg-gray-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-indigo-600"><%= facility.name %></p>
+                <p class="text-sm text-gray-500"><%= facility.address %></p>
+              </div>
+              <div class="text-sm text-gray-400">
+                ID: <%= facility.id.to_s.first(8) %>...
+              </div>
+            </div>
+          </li>
+        <% end %>
+      <% else %>
+        <li class="px-6 py-4 text-gray-500 italic">No facilities found.</li>
+      <% end %>
+    </ul>
+  </div>
+
+</div>
