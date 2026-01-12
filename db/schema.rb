@@ -10,26 +10,51 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_07_014758) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_12_163332) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pgcrypto"
 
-  create_table "sessions", force: :cascade do |t|
+  create_table "facilities", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "address"
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.uuid "organization_id", null: false
+    t.string "phone"
+    t.datetime "updated_at", null: false
+    t.index ["organization_id"], name: "index_facilities_on_organization_id"
+  end
+
+  create_table "organizations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.string "plan"
+    t.string "slug"
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_organizations_on_slug"
+  end
+
+  create_table "sessions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "ip_address"
     t.datetime "updated_at", null: false
     t.string "user_agent"
-    t.bigint "user_id", null: false
+    t.uuid "user_id", null: false
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
-  create_table "users", force: :cascade do |t|
+  create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email_address", null: false
+    t.uuid "organization_id", null: false
     t.string "password_digest", null: false
+    t.integer "role"
     t.datetime "updated_at", null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
+    t.index ["organization_id"], name: "index_users_on_organization_id"
   end
 
+  add_foreign_key "facilities", "organizations"
   add_foreign_key "sessions", "users"
+  add_foreign_key "users", "organizations"
 end
