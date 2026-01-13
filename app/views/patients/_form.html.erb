@@ -1,0 +1,68 @@
+<%# Determine the correct URL based on create vs update %>
+<% url = patient.new_record? ? patients_path(slug: @current_organization.slug) : patient_path(patient, slug: @current_organization.slug) %>
+
+<%= form_with(model: patient, url: url, class: "contents") do |form| %>
+  <% if patient.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
+      <h2><%= pluralize(patient.errors.count, "error") %> prohibited this patient from being saved:</h2>
+      <ul class="list-disc ml-6">
+        <% patient.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-5">
+    <div>
+      <%= form.label :first_name, class: "block font-bold text-gray-900" %>
+      <%= form.text_field :first_name, 
+        class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600" 
+      %>
+    </div>
+
+    <div>
+      <%= form.label :last_name, class: "block font-bold text-gray-900" %>
+      <%= form.text_field :last_name, 
+        class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600" 
+      %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-5">
+    <div>
+      <%= form.label :date_of_birth, "Date of Birth", class: "block font-bold text-gray-900" %>
+      <%= form.date_field :date_of_birth, 
+        class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600" 
+      %>
+    </div>
+
+    <div>
+      <%= form.label :gender, class: "block font-bold text-gray-900" %>
+      <%= form.select :gender, ["Male", "Female", "Other"], 
+        { prompt: "Select Gender" }, 
+        { class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600" } 
+      %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-5">
+    <div>
+      <%= form.label :phone, class: "block font-bold text-gray-900" %>
+      <%= form.text_field :phone, 
+        class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600" 
+      %>
+    </div>
+
+    <div>
+      <%= form.label :email, class: "block font-bold text-gray-900" %>
+      <%= form.email_field :email, 
+        class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600" 
+      %>
+    </div>
+  </div>
+
+  <div class="inline">
+    <%= form.submit "Save Patient", class: "rounded-md px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white inline-block font-medium cursor-pointer" %>
+  </div>
+<% end %>

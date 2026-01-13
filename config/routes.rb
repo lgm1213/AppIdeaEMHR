@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :patients
   # Public & Auth
   root "pages#home"
   resource :session
@@ -26,7 +27,7 @@ Rails.application.routes.draw do
   scope "/:slug" do
     get "dashboard", to: "dashboard#index", as: :practice_dashboard
     resources :facilities
-    # resources :patients, etc...
+    resources :patients
   end
 
   get "up" => "rails/health#show", as: :rails_health_check
