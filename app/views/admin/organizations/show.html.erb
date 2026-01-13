@@ -1,0 +1,56 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  
+  <div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="min-w-0 flex-1">
+      <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+        <%= @organization.name %>
+      </h2>
+      <p class="text-sm text-gray-500">Slug: /<%= @organization.slug %></p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-10 md:grid-cols-2">
+    
+    <div class="bg-white shadow sm:rounded-lg">
+      <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+        <h3 class="text-base font-semibold leading-6 text-gray-900">Facilities</h3>
+      </div>
+      <ul role="list" class="divide-y divide-gray-200">
+        <% @facilities.each do |facility| %>
+          <li class="px-4 py-4">
+            <div class="flex items-center justify-between">
+              <p class="text-sm font-medium text-indigo-600 truncate"><%= facility.name %></p>
+              <div class="text-sm text-gray-500"><%= facility.address %></div>
+            </div>
+          </li>
+        <% end %>
+        <% if @facilities.empty? %>
+          <li class="px-4 py-4 text-sm text-gray-500 italic">No facilities yet.</li>
+        <% end %>
+      </ul>
+    </div>
+
+    <div class="bg-white shadow sm:rounded-lg">
+      <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+        <h3 class="text-base font-semibold leading-6 text-gray-900">Staff & Roles</h3>
+      </div>
+      <ul role="list" class="divide-y divide-gray-200">
+        <% @users.each do |user| %>
+          <li class="px-4 py-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-900"><%= user.email_address %></p>
+              </div>
+              <div>
+                <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                  <%= user.role %>
+                </span>
+              </div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+    
+  </div>
+</div>

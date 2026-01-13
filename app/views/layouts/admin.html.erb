@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "AppIdea Admin" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%# reuse your existing tailwind configuration %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-gray-100 min-h-screen text-gray-900">
+    
+    <nav class="bg-gray-900 text-white shadow-lg">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center gap-8">
+            <span class="text-xl font-bold tracking-tight text-indigo-400">SUPER ADMIN</span>
+            <div class="hidden md:flex space-x-8">
+              <%= link_to "Practices", admin_organizations_path, class: "hover:text-white text-gray-300 px-3 py-2 rounded-md text-sm font-medium" %>
+              <%= link_to "Global Users", admin_users_path, class: "hover:text-white text-gray-300 px-3 py-2 rounded-md text-sm font-medium" %>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <%= link_to "Exit to App", root_path, class: "text-gray-300 hover:text-white text-sm" %>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="fixed top-20 right-4 z-50 space-y-2">
+      <% flash.each do |key, value| %>
+        <div class="<%= key == 'notice' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %> px-4 py-3 rounded shadow-lg border border-transparent">
+          <%= value %>
+        </div>
+      <% end %>
+    </div>
+
+    <main>
+      <%= yield %>
+    </main>
+
+  </body>
+</html>

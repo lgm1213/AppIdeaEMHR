@@ -1,4 +1,7 @@
-<%= form_with(model: facility, class: "contents") do |form| %>
+<%# Logic: We determine the submission URL dynamically.  If it's new, post to the list (create). If existing, post to the item (update)%>
+<% url = facility.new_record? ? facilities_path(slug: @current_organization.slug) : facility_path(facility, slug: @current_organization.slug) %>
+
+<%= form_with(model: facility, url: url, class: "contents") do |form| %>
   <% if facility.errors.any? %>
     <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
       <h2><%= pluralize(facility.errors.count, "error") %> prohibited this facility from being saved:</h2>
@@ -12,26 +15,21 @@
   <% end %>
 
   <div class="my-5">
-    <%= form.label :organization_id %>
-    <%= form.text_field :organization_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": facility.errors[:organization_id].none?, "border-red-400 focus:outline-red-600": facility.errors[:organization_id].any?}] %>
+    <%= form.label :name, class: "block font-bold text-gray-900" %>
+    <%= form.text_field :name, class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full focus:border-blue-600 focus:ring-1 focus:ring-blue-600" %>
   </div>
 
   <div class="my-5">
-    <%= form.label :name %>
-    <%= form.text_field :name, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": facility.errors[:name].none?, "border-red-400 focus:outline-red-600": facility.errors[:name].any?}] %>
+    <%= form.label :phone, class: "block font-bold text-gray-900" %>
+    <%= form.text_field :phone, class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full focus:border-blue-600 focus:ring-1 focus:ring-blue-600" %>
   </div>
 
   <div class="my-5">
-    <%= form.label :phone %>
-    <%= form.text_field :phone, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": facility.errors[:phone].none?, "border-red-400 focus:outline-red-600": facility.errors[:phone].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :address %>
-    <%= form.textarea :address, rows: 4, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": facility.errors[:address].none?, "border-red-400 focus:outline-red-600": facility.errors[:address].any?}] %>
+    <%= form.label :address, class: "block font-bold text-gray-900" %>
+    <%= form.textarea :address, rows: 4, class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full focus:border-blue-600 focus:ring-1 focus:ring-blue-600" %>
   </div>
 
   <div class="inline">
-    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+    <%= form.submit class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
   </div>
 <% end %>

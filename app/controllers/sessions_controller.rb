@@ -6,9 +6,15 @@ class SessionsController < ApplicationController
   end
 
   def create
-    if user = User.authenticate_by(params.permit(:email_address, :password))
+    if user = User.authenticate_by(email_address: params[:email_address], password: params[:password])
       start_new_session_for user
-      redirect_to dashboard_path
+
+      if user.superadmin?
+        redirect_to admin_organizations_path
+      else
+        redirect_to practice_dashboard_path(slug: user.organization.slug)
+      end
+
     else
       redirect_to new_session_path, alert: "Try another email address or password."
     end

@@ -5,6 +5,20 @@ class Organization < ApplicationRecord
   # An organization has many staff members
   has_many :users, dependent: :destroy
 
+  # Allow the signup form to create the Admin User at the same time
+  accepts_nested_attributes_for :users
+
   validates :name, presence: true
+
+  # Creates the URL slug based on the organization name
+  before_validation :generate_slug, on: :create
   validates :slug, presence: true, uniqueness: true
+
+  private
+
+  def generate_slug
+    return if name.blank?
+    # Create a URL-safe version of the name
+    self.slug = name.parameterize
+  end
 end

@@ -1,9 +1,27 @@
 class ApplicationController < ActionController::Base
   include Authentication
-  before_action :require_authentication
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
 
-  # Changes to the importmap will invalidate the etag for HTML responses
-  stale_when_importmap_changes
+  before_action :require_authentication
+  before_action :authorize_tenant!, if: -> { params[:slug].present? }
+
+  def default_url_options
+    { slug: params[:slug] || @current_organization&.slug }
+  end
+
+  private
+
+  def authorize_tenant!
+    @current_organization = Organization.find_by!(slug: params[:slug])
+    # If no user is logged in, we shouldn't be checking IDs. The require_authentication filter will handle the redirect if needed.
+
+    return unless Current.user
+    unless Current.user.organization_id == @current_organization.id
+      redirect_to root_path, alert: "You are not authorized to access the #{@current_organization.name} practice."
+    end
+
+
+  rescue ActiveRecord::RecordNotFound
+    redirect_to root_path, alert: "Practice not found."
+  end
 end

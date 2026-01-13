@@ -1,18 +1,17 @@
-<div id="<%= dom_id facility %>" class="w-full sm:w-auto my-5 space-y-5">
-  <div>
-    <strong class="block font-medium mb-1">Organization:</strong>
-    <%= facility.organization_id %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Name:</strong>
-    <%= facility.name %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Phone:</strong>
-    <%= facility.phone %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Address:</strong>
-    <%= facility.address %>
+<div id="<%= dom_id facility %>" class="min-w-full">
+  <div class="flex flex-col">
+    <h3 class="font-bold text-lg text-gray-900">
+      <%= facility.name %>
+    </h3>
+
+    <p class="text-gray-600">
+      <%= facility.address %>
+    </p>
+
+    <% if facility.phone.present? %>
+      <p class="text-sm text-gray-500 mt-1">
+        <span class="font-medium text-gray-700">Phone:</span> <%= facility.phone %>
+      </p>
+    <% end %>
   </div>
 </div>

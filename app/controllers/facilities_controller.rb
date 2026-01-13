@@ -1,31 +1,32 @@
 class FacilitiesController < ApplicationController
   before_action :set_facility, only: %i[ show edit update destroy ]
 
-  # GET /facilities or /facilities.json
+  # GET /:slug/facilities
   def index
-    @facilities = Facility.all
+    @facilities = @current_organization.facilities
   end
 
-  # GET /facilities/1 or /facilities/1.json
+  # GET /:slug/facilities/1
   def show
   end
 
-  # GET /facilities/new
+  # GET /:slug/facilities/new
   def new
-    @facility = Facility.new
+    @facility = @current_organization.facilities.build
   end
 
-  # GET /facilities/1/edit
+  # GET /:slug/facilities/1/edit
   def edit
   end
 
-  # POST /facilities or /facilities.json
+  # POST /:slug/facilities
   def create
-    @facility = Facility.new(facility_params)
+    @facility = @current_organization.facilities.build(facility_params)
 
     respond_to do |format|
       if @facility.save
-        format.html { redirect_to @facility, notice: "Facility was successfully created." }
+        # Redirect to the index list (Rails keeps the current slug automatically)
+        format.html { redirect_to facilities_path, notice: "Facility was successfully created." }
         format.json { render :show, status: :created, location: @facility }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -34,11 +35,11 @@ class FacilitiesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /facilities/1 or /facilities/1.json
+  # PATCH/PUT /:slug/facilities/1
   def update
     respond_to do |format|
       if @facility.update(facility_params)
-        format.html { redirect_to @facility, notice: "Facility was successfully updated.", status: :see_other }
+        format.html { redirect_to facility_path(@facility), notice: "Facility was successfully updated." }
         format.json { render :show, status: :ok, location: @facility }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -47,24 +48,24 @@ class FacilitiesController < ApplicationController
     end
   end
 
-  # DELETE /facilities/1 or /facilities/1.json
+  # DELETE /:slug/facilities/1
   def destroy
     @facility.destroy!
 
     respond_to do |format|
-      format.html { redirect_to facilities_path, notice: "Facility was successfully destroyed.", status: :see_other }
+      format.html { redirect_to facilities_path, status: :see_other, notice: "Facility was successfully destroyed." }
       format.json { head :no_content }
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
+    # Use callback to share common setup or constraints between actions.
     def set_facility
-      @facility = Facility.find(params.expect(:id))
+      @facility = @current_organization.facilities.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.
     def facility_params
-      params.expect(facility: [ :organization_id, :name, :phone, :address ])
+      params.require(:facility).permit(:name, :phone, :address)
     end
 end
