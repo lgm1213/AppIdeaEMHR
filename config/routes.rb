@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :encounters
   resources :patients
   # Public & Auth
   root "pages#home"
@@ -29,6 +30,9 @@ Rails.application.routes.draw do
     resources :facilities
     resources :patients
     resources :providers
+    resources :patients do
+      resources :encounters
+    end
   end
 
   get "up" => "rails/health#show", as: :rails_health_check

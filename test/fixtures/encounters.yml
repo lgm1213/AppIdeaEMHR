@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  patient: one
+  provider: one
+  organization: one
+  visit_date: 2026-01-13 16:19:19
+  subjective: MyText
+  objective: MyText
+  assessment: MyText
+  plan: MyText
+
+two:
+  patient: two
+  provider: two
+  organization: two
+  visit_date: 2026-01-13 16:19:19
+  subjective: MyText
+  objective: MyText
+  assessment: MyText
+  plan: MyText

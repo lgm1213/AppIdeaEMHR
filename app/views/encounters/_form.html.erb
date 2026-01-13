@@ -1,0 +1,115 @@
+<%# Determine the correct URL for nested resources within a tenant scope %>
+<% url = encounter.new_record? ? 
+    patient_encounters_path(slug: @current_organization.slug, patient_id: @patient.id) : 
+    patient_encounter_path(slug: @current_organization.slug, patient_id: @patient.id, id: encounter.id) 
+%>
+
+<%= form_with(model: encounter, url: url, class: "contents") do |form| %>
+  <% if encounter.errors.any? %>
+    <div class="rounded-md bg-red-50 p-4 mb-4">
+      <h3 class="text-sm font-medium text-red-800">Unable to save note:</h3>
+      <div class="mt-2 text-sm text-red-700">
+        <ul class="list-disc pl-5">
+          <% encounter.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6 flex gap-6">
+    <div class="w-1/3">
+      <%= form.label :visit_date, 
+        class: "block text-sm font-bold text-gray-700" 
+      %>
+      <%= form.datetime_field :visit_date, 
+        class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+      %>
+    </div>
+
+    <div class="w-1/3">
+      <%= form.label :provider_id, "Provider", class: "block text-sm font-bold text-gray-700" %>
+      <%= form.collection_select :provider_id, 
+        @current_organization.providers.includes(:user), 
+        :id, 
+        :full_name, 
+        { prompt: "Select Provider" }, 
+        { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" } 
+      %>
+    </div>
+  </div>
+
+  <div class="space-y-6">
+    
+    <div>
+      <%= form.label :subjective, "S - Subjective (History of Present Illness)", 
+        class: "block text-sm font-bold text-indigo-900" 
+      %>
+      <div class="mt-1">
+        <%= form.text_area :subjective, 
+          rows: 4, 
+          class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm", 
+          placeholder: "Patient complains of..." 
+        %>
+      </div>
+    </div>
+
+    <div>
+      <%= form.label :objective, 
+        "O - Objective (Vitals, Exam Findings)", 
+        class: "block text-sm font-bold text-indigo-900" 
+      %>
+      <div class="mt-1">
+        <%= form.text_area :objective, 
+          rows: 4, 
+          class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm", 
+          placeholder: "BP 120/80, HR 72..." 
+        %>
+      </div>
+    </div>
+
+    <div>
+      <%= form.label :assessment, 
+        "A - Assessment (Diagnosis)", 
+        class: "block text-sm font-bold text-indigo-900" 
+      %>
+      <div class="mt-1">
+        <%= form.text_area :assessment, 
+          rows: 3, 
+          class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm", 
+          placeholder: "1. Essential Hypertension" 
+        %>
+      </div>
+    </div>
+
+    <div>
+      <%= form.label :plan, 
+        "P - Plan (Treatment, Follow-up)", 
+        class: "block text-sm font-bold text-indigo-900" 
+      %>
+      <div class="mt-1">
+        <%= form.text_area :plan, 
+          rows: 4, 
+          class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm", 
+          placeholder: "Start Lisinopril 10mg..." 
+        %>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="mt-8 flex justify-end gap-x-4">
+    <%= link_to "Cancel", patient_encounters_path(slug: @current_organization.slug, patient_id: @patient.id), 
+      class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" 
+    %>
+    <%= form.submit "Sign & Save Note", 
+      class: %w[
+        rounded-md bg-indigo-600 px-3 py-2 
+        text-sm font-semibold text-white shadow-sm 
+        hover:bg-indigo-500 
+        focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer
+      ].join(" ") 
+    %>
+  </div>
+<% end %>

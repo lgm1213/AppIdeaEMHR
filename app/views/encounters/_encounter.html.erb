@@ -1,0 +1,34 @@
+<div id="<%= dom_id encounter %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Patient:</strong>
+    <%= encounter.patient_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Provider:</strong>
+    <%= encounter.provider_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Organization:</strong>
+    <%= encounter.organization_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Visit date:</strong>
+    <%= encounter.visit_date %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Subjective:</strong>
+    <%= encounter.subjective %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Objective:</strong>
+    <%= encounter.objective %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Assessment:</strong>
+    <%= encounter.assessment %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Plan:</strong>
+    <%= encounter.plan %>
+  </div>
+</div>

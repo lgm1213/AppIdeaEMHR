@@ -9,6 +9,9 @@ class Organization < ApplicationRecord
   # An organization has many patients in its care
   has_many :patients, dependent: :destroy
 
+  # Medical Encounters and Billing
+  has_many :encounters
+
   # Allow the signup form to create the Admin User at the same time
   accepts_nested_attributes_for :users
 
