@@ -9,11 +9,17 @@
       <div class="flex flex-1 justify-end">
         <% if authenticated? %>
            <%= link_to "Go to Dashboard", practice_dashboard_path(slug: Current.user.organization.slug), 
-           class: "rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 
-           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" 
+            class: %w[
+              rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 
+              focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
+            ].join(" ") 
            %>
         <% else %>
-           <%= link_to "Log in to Clinical Portal <span aria-hidden='true'>&rarr;</span>".html_safe, new_session_path, class: "text-sm font-semibold leading-6 text-gray-900" %>
+           <%= link_to "Log in to Clinical Portal <span aria-hidden='true'>&rarr;</span>".html_safe, new_session_path, 
+            class: %w[
+              text-sm font-semibold leading-6 text-gray-900
+            ].join(" ") 
+           %>
         <% end %>
       </div>
     </nav>
@@ -27,7 +33,13 @@
           Secure, efficient, and role-based electronic medical records for multi-location practices.
         </p>
         <div class="mt-10 flex items-center justify-center gap-x-6">
-          <%= link_to "Provider Login", new_session_path, class: "rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" %>
+          <%= link_to "Provider Login", new_session_path, 
+            class: %w[
+              rounded-md bg-indigo-600 px-3.5 py-2.5 
+              text-sm font-semibold text-white shadow-sm 
+              hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
+            ].join(" ") 
+          %>
           <a href="#" class="text-sm font-semibold leading-6 text-gray-900">Contact Support <span aria-hidden="true">→</span></a>
         </div>
       </div>

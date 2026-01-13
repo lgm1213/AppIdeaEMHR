@@ -3,9 +3,12 @@ Rails.application.routes.draw do
   root "pages#home"
   resource :session
   resources :passwords, param: :token
-  get "up" => "rails/health#show", as: :rails_health_check
 
-  # SUPER ADMIN AREA
+  # Public Sign Up
+  get "signup", to: "registrations#new"
+  post "signup", to: "registrations#create"
+
+  # SuperAdmin Area
   namespace :admin do
     root to: "dashboard#index" # Optional: a main stats page
 
@@ -19,10 +22,12 @@ Rails.application.routes.draw do
     resources :users, only: [ :index, :show, :edit, :update ]
   end
 
-  # TENANT AREA (The Clinical App)
+  # Tenant Area (The Clinical App)
   scope "/:slug" do
     get "dashboard", to: "dashboard#index", as: :practice_dashboard
     resources :facilities
     # resources :patients, etc...
   end
+
+  get "up" => "rails/health#show", as: :rails_health_check
 end

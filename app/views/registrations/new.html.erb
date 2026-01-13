@@ -1,0 +1,105 @@
+<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+    <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Start your new Practice</h2>
+    <p class="mt-2 text-center text-sm text-gray-600">
+      Already have an account?
+      <%= link_to "Log in", new_session_path, class: "font-semibold text-indigo-600 hover:text-indigo-500" %>
+    </p>
+  </div>
+
+  <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+    <%= form_with(model: @organization, url: signup_path, class: "space-y-6") do |form| %>
+      
+      <% if @organization.errors.any? %>
+        <div class="rounded-md bg-red-50 p-4 mb-4">
+          <div class="flex">
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">Please correct the following errors:</h3>
+              <div class="mt-2 text-sm text-red-700">
+                <ul role="list" class="list-disc pl-5 space-y-1">
+                  <% @organization.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <div>
+        <%= form.label :name, "Organization's Name", class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-2">
+          <%= form.text_field :name, required: true, 
+                              class: %w[
+                                block w-full rounded-md border-0 py-1.5 
+                                text-gray-900 shadow-sm ring-1 ring-inset 
+                                ring-gray-300 placeholder:text-gray-400 
+                                focus:ring-2 focus:ring-inset focus:ring-indigo-600 
+                                sm:text-sm sm:leading-6
+                              ].join(" ") 
+          %>
+        </div>
+      </div>
+
+      <%= form.fields_for :users do |user_form| %>
+        <div>
+          <%= user_form.label :email_address, "Admin Email", class: "block text-sm font-medium leading-6 text-gray-900" %>
+          <div class="mt-2">
+            <%= user_form.email_field :email_address, required: true, autocomplete: "email",
+              class: %w[
+                block w-full rounded-md border-0 py-1.5 
+                text-gray-900 shadow-sm ring-1 
+                ring-inset ring-gray-300 
+                placeholder:text-gray-400 
+                focus:ring-2 focus:ring-inset focus:ring-indigo-600 
+                sm:text-sm sm:leading-6
+              ].join(" ") 
+            %>
+          </div>
+        </div>
+
+        <div>
+          <%= user_form.label :password, class: "block text-sm font-medium leading-6 text-gray-900" %>
+          <div class="mt-2">
+            <%= user_form.password_field :password, required: true, autocomplete: "new-password", 
+              class: %w[
+                block w-full rounded-md border-0 py-1.5 
+                text-gray-900 shadow-sm 
+                ring-1 ring-inset ring-gray-300 
+                placeholder:text-gray-400 
+                focus:ring-2 focus:ring-inset focus:ring-indigo-600 
+                sm:text-sm sm:leading-6
+              ].join(" ") %>
+          </div>
+        </div>
+        
+        <div>
+          <%= user_form.label :password_confirmation, "Confirm Password", class: "block text-sm font-medium leading-6 text-gray-900" %>
+          <div class="mt-2">
+            <%= user_form.password_field :password_confirmation, required: true, autocomplete: "new-password", 
+              class: %w[
+                block w-full rounded-md border-0 py-1.5 
+                text-gray-900 shadow-sm 
+                ring-1 ring-inset ring-gray-300 
+                placeholder:text-gray-400 
+                focus:ring-2 focus:ring-inset focus:ring-indigo-600 
+                sm:text-sm sm:leading-6
+              ].join(" ") %>
+          </div>
+        </div>
+      <% end %>
+
+      <div>
+        <%= form.submit "Create Account", 
+          class: %w[
+            flex w-full justify-center rounded-md bg-indigo-600 
+            px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm 
+            hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 
+            focus-visible:outline-offset-2 focus-visible:outline-indigo-600
+          ].join(" ") 
+        %>
+      </div>
+    <% end %>
+  </div>
+</div>
