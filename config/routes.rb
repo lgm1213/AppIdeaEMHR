@@ -28,6 +28,7 @@ Rails.application.routes.draw do
     get "dashboard", to: "dashboard#index", as: :practice_dashboard
     resources :facilities
     resources :patients
+    resources :providers
   end
 
   get "up" => "rails/health#show", as: :rails_health_check

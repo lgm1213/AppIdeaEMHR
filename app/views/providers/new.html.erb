@@ -1,0 +1,177 @@
+<div class="max-w-2xl mx-auto py-10">
+  <div class="mb-8 border-b border-gray-200 pb-5">
+    <h3 class="text-2xl font-bold leading-6 text-gray-900">Onboard New Provider</h3>
+    <p class="mt-2 text-sm text-gray-500">Create a login account and clinical profile for a new doctor or practitioner.</p>
+  </div>
+
+  <%= form_with(model: @user, url: providers_path(slug: @current_organization.slug), class: "space-y-8") do |form| %>
+    
+    <% if @user.errors.any? %>
+      <div class="rounded-md bg-red-50 p-4">
+        <h3 class="text-sm font-medium text-red-800">Please fix the following errors:</h3>
+        <ul class="mt-2 list-disc pl-5 text-sm text-red-700">
+          <% @user.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="bg-white p-6 shadow sm:rounded-lg border border-gray-200">
+      <h4 class="text-base font-semibold text-gray-900 mb-4">Login Credentials</h4>
+      
+      <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+        <div class="sm:col-span-3">
+          <%= form.label :first_name, 
+						class: "block text-sm font-medium leading-6 text-gray-900"
+					%>
+          <%= form.text_field :first_name, 
+            class: %w[
+              mt-2 block w-full rounded-md border-0 py-1.5 
+              text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 
+							placeholder:text-gray-400 
+							focus:ring-2 focus:ring-inset focus:ring-indigo-600 
+							sm:text-sm sm:leading-6
+            ].join(" ") 
+					%>
+        </div>
+
+        <div class="sm:col-span-3">
+          <%= form.label :last_name, 
+						class: "block text-sm font-medium leading-6 text-gray-900" 
+					%>
+          <%= form.text_field :last_name, 
+						class: %w[
+							mt-2 block w-full rounded-md border-0 py-1.5 
+							text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 
+							placeholder:text-gray-400 
+							focus:ring-2 focus:ring-inset focus:ring-indigo-600 
+							sm:text-sm sm:leading-6
+          	].join(" ") 
+					%>
+        </div>
+
+        <div class="sm:col-span-4">
+          <%= form.label :email_address, 
+						class: "block text-sm font-medium leading-6 text-gray-900"
+					%>
+          <%= form.email_field :email_address, 
+						class: %w[
+							mt-2 block w-full rounded-md border-0 py-1.5 
+							text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 
+							placeholder:text-gray-400 
+							focus:ring-2 focus:ring-inset focus:ring-indigo-600 
+							sm:text-sm sm:leading-6
+          	].join(" ") 
+					%>
+        </div>
+
+        <div class="sm:col-span-3">
+          <%= form.label :password, "Temporary Password", 
+						class: "block text-sm font-medium leading-6 text-gray-900" 
+					%>
+          <%= form.password_field :password, class: %w[
+							mt-2 block w-full rounded-md border-0 py-1.5 
+							text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 
+							focus:ring-2 focus:ring-inset focus:ring-indigo-600 
+							sm:text-sm sm:leading-6
+          	].join(" ") 
+					%>
+        </div>
+         <div class="sm:col-span-3">
+          <%= form.label :password_confirmation, "Confirm Password", 
+						class: "block text-sm font-medium leading-6 text-gray-900" 
+					%>
+          <%= form.password_field :password_confirmation, 
+					class: %w[
+							mt-2 block w-full rounded-md border-0 py-1.5 
+							text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 
+							focus:ring-2 focus:ring-inset focus:ring-indigo-600 
+							sm:text-sm sm:leading-6
+          	].join(" ") 
+					%>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-indigo-50 p-6 shadow sm:rounded-lg border border-indigo-100">
+      <h4 class="text-base font-semibold text-indigo-900 mb-4">Clinical Credentials</h4>
+      
+      <%= form.fields_for :provider do |pf| %>
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+          
+          <div class="sm:col-span-3">
+            <%= pf.label :specialty, 
+							class: "block text-sm font-medium leading-6 text-gray-900"
+						%>
+            <%= pf.select :specialty, 
+							["Family Medicine", "Internal Medicine", "Pediatrics", "Cardiology"], 
+							{ prompt: "Select Specialty" }, 
+							class: %w[
+								mt-2 block w-full rounded-md border-0 py-1.5 
+								text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 
+								focus:ring-2 focus:ring-inset focus:ring-indigo-600 
+								sm:text-sm sm:leading-6
+							].join(" ") 
+						%>
+          </div>
+
+          <div class="sm:col-span-3">
+            <%= pf.label :npi, "NPI Number", 
+							class: "block text-sm font-medium leading-6 text-gray-900" 
+						%>
+            <%= pf.text_field :npi, placeholder: "10-digit ID", class: %w[
+							mt-2 block w-full rounded-md border-0 py-1.5 
+							text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 
+							focus:ring-2 focus:ring-inset focus:ring-indigo-600 
+							sm:text-sm sm:leading-6
+          	].join(" ") 
+					%>
+          </div>
+
+          <div class="sm:col-span-3">
+            <%= pf.label :license_number, "State License #", 
+							class: "block text-sm font-medium leading-6 text-gray-900" 
+						%>
+            <%= pf.text_field :license_number, 
+							class: %w[
+								mt-2 block w-full rounded-md border-0 py-1.5 
+								text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 
+								focus:ring-2 focus:ring-inset focus:ring-indigo-600 
+								sm:text-sm sm:leading-6
+							].join(" ") 
+						%>
+          </div>
+
+          <div class="sm:col-span-3">
+            <%= pf.label :dea_number, "DEA Number", 
+							class: "block text-sm font-medium leading-6 text-gray-900" 
+						%>
+            <%= pf.text_field :dea_number, 
+							class: %w[
+								mt-2 block w-full rounded-md border-0 py-1.5 
+								text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 
+								focus:ring-2 focus:ring-inset focus:ring-indigo-600 
+								sm:text-sm sm:leading-6
+							].join(" ") 
+						%>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="flex items-center justify-end gap-x-6">
+      <%= link_to "Cancel", providers_path(slug: @current_organization.slug), 
+				class: "text-sm font-semibold leading-6 text-gray-900" 
+			%>
+      <%= form.submit "Create Provider Account", 
+				class: %w[
+					rounded-md bg-indigo-600 px-3 py-2 
+					text-sm font-semibold text-white shadow-sm 
+					hover:bg-indigo-500 
+					focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
+				].join(" ") 
+			%>
+    </div>
+  <% end %>
+</div>

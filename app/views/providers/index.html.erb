@@ -1,0 +1,58 @@
+<div class="w-full">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
+
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="font-bold text-3xl">Provider Directory</h1>
+    <%= link_to "Onboard New Provider", new_provider_path(slug: @current_organization.slug), class: "rounded-md px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white block font-medium" %>
+  </div>
+
+  <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+    <table class="min-w-full divide-y divide-gray-300">
+      <thead class="bg-gray-50">
+        <tr>
+          <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Provider Name</th>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Specialty</th>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">NPI Number</th>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">License Status</th>
+          <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+            <span class="sr-only">Edit</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 bg-white">
+        <% @providers.each do |provider| %>
+          <tr>
+            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+              <div class="font-medium text-gray-900"><%= provider.full_name %></div>
+              <div class="text-gray-500 text-xs"><%= provider.email_address %></div>
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+              <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                <%= provider.specialty %>
+              </span>
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 font-mono">
+              <%= provider.npi %>
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+              <% if provider.license_number.present? %>
+                <span class="text-green-600 flex items-center gap-1">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
+                  Active
+                </span>
+              <% else %>
+                <span class="text-red-500">Missing</span>
+              <% end %>
+            </td>
+            <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+              <%= link_to "Edit", edit_provider_path(provider, slug: @current_organization.slug), class: "text-indigo-600 hover:text-indigo-900" %>
+              <%= button_to "Remove", provider_path(provider, slug: @current_organization.slug), method: :delete, data: { turbo_confirm: "Are you sure? This will delete the login account and all provider data." }, class: "text-red-600 hover:text-red-900 ml-4 inline-block bg-transparent border-0 cursor-pointer" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

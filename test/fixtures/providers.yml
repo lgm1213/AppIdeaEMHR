@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  organization: one
+  npi: MyString
+  license_number: MyString
+  dea_number: MyString
+  specialty: MyString
+  taxonomy_code: MyString
+
+two:
+  user: two
+  organization: two
+  npi: MyString
+  license_number: MyString
+  dea_number: MyString
+  specialty: MyString
+  taxonomy_code: MyString
