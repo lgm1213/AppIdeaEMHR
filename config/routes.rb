@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :appointments
   resources :encounters
   resources :patients
   # Public & Auth
@@ -30,6 +31,7 @@ Rails.application.routes.draw do
     resources :facilities
     resources :patients
     resources :providers
+    resources :appointments
     resources :patients do
       resources :encounters
     end

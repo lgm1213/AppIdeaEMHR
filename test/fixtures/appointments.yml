@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  patient: one
+  provider: one
+  organization: one
+  start_time: 2026-01-13 17:17:45
+  end_time: 2026-01-13 17:17:45
+  status: 1
+  reason: MyText
+
+two:
+  patient: two
+  provider: two
+  organization: two
+  start_time: 2026-01-13 17:17:45
+  end_time: 2026-01-13 17:17:45
+  status: 1
+  reason: MyText

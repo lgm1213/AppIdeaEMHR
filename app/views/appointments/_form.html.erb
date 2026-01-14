@@ -1,0 +1,97 @@
+<%= form_with(model: appointment, url: (appointment.new_record? ? appointments_path(slug: @current_organization.slug) : appointment_path(appointment, slug: @current_organization.slug)), class: "space-y-8") do |form| %>
+  
+  <% if appointment.errors.any? %>
+    <div class="bg-red-50 p-4 rounded-md text-red-700 text-sm">
+      <h3 class="font-bold">Error saving appointment:</h3>
+      <ul class="list-disc pl-5 mt-2">
+        <% appointment.errors.full_messages.each do |msg| %><li><%= msg %></li><% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="bg-white p-6 shadow sm:rounded-lg border border-gray-200 grid grid-cols-1 gap-6 sm:grid-cols-2">
+    
+    <div class="space-y-6">
+      <div>
+        <%= form.label :patient_id, 
+          class: "block text-sm font-bold text-gray-900" 
+        %>
+        <%= form.collection_select :patient_id, 
+          @current_organization.patients.order(:last_name), 
+          :id, 
+          :full_name, 
+          { prompt: "Select Patient" }, 
+          { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" } 
+        %>
+      </div>
+
+      <div>
+        <%= form.label :provider_id, 
+          class: "block text-sm font-bold text-gray-900" 
+        %>
+        <%= form.collection_select :provider_id, @current_organization.providers.includes(:user),
+          :id, 
+          :full_name, 
+          { prompt: "Select Provider" }, 
+          { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" } 
+        %>
+      </div>
+
+      <div>
+        <%= form.label :reason, "Reason for Visit", 
+          class: "block text-sm font-bold text-gray-900" 
+        %>
+        <%= form.text_area :reason, 
+          rows: 3, 
+          class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+        %>
+      </div>
+    </div>
+
+    <div class="space-y-6">
+      <div>
+        <%= form.label :start_time, 
+          class: "block text-sm font-bold text-gray-900" 
+        %>
+        <%= form.datetime_field :start_time, 
+          class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+        %>
+      </div>
+
+      <div>
+        <%= form.label :end_time, 
+          class: "block text-sm font-bold text-gray-900" 
+        %>
+        <%= form.datetime_field :end_time, 
+          class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+        %>
+      </div>
+
+      <div>
+        <%= form.label :status, 
+          class: "block text-sm font-bold text-gray-900" 
+        %>
+        <%= form.select :status, 
+          Appointment.statuses.keys.map { |w| [w.humanize, w] },
+          {}, 
+          class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+        %>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-x-4">
+    <%= link_to "Cancel", 
+      appointments_path(slug: @current_organization.slug), 
+      class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" 
+    %>
+    <%= form.submit "Save Appointment", 
+      class: %w[
+        rounded-md bg-indigo-600 px-3 py-2 
+        text-sm font-semibold text-white shadow-sm 
+        hover:bg-indigo-500 
+        focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
+      ].join(" ") 
+    %>
+  </div>
+<% end %>

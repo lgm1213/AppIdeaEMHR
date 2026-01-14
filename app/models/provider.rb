@@ -2,6 +2,7 @@ class Provider < ApplicationRecord
   belongs_to :user
   belongs_to :organization
   has_many :encounters
+  has_many :appointments
 
   validates :npi, presence: true, length: { is: 10 }
   validates :license_number, presence: true

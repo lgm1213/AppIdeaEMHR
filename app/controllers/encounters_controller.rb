@@ -14,13 +14,26 @@ class EncountersController < ApplicationController
   # GET /:slug/patients/:patient_id/encounters/new
   def new
     @encounter = @patient.encounters.build
+    @encounter.visit_date = Time.current
 
-    # Auto-fill the provider if the current user is a doctor
-    if Current.user&.is_provider?
+    # If appointment_id is present, hydrate from Appointment
+    if params[:appointment_id].present?
+      appointment = @current_organization.appointments.find_by(id: params[:appointment_id])
+
+      if appointment
+        # Link to the appointment
+        @encounter.appointment_id = appointment.id
+
+        # Auto-select the provider scheduled for this visit
+        @encounter.provider_id = appointment.provider_id
+
+        # Pre-fill Subjective with the reason for visit
+        @encounter.subjective = "Reason for Visit: #{appointment.reason}\n\n"
+      end
+    # If no appointment, try to guess provider from current user
+    elsif Current.user&.is_provider?
       @encounter.provider = Current.user.provider
     end
-
-    @encounter.visit_date = Time.current
   end
 
   # POST /:slug/patients/:patient_id/encounters
@@ -34,6 +47,9 @@ class EncountersController < ApplicationController
     end
 
     if @encounter.save
+      # If this note is linked to an appointment, mark it as completed
+      @encounter.appointment&.update(status: :completed)
+
       redirect_to patient_encounters_path(@current_organization.slug, @patient), notice: "SOAP note saved."
     else
       render :new, status: :unprocessable_entity
@@ -61,7 +77,6 @@ class EncountersController < ApplicationController
   private
 
   def set_patient
-    # We find the patient via the URL param :patient_id
     @patient = @current_organization.patients.find(params[:patient_id])
   end
 
@@ -70,6 +85,6 @@ class EncountersController < ApplicationController
   end
 
   def encounter_params
-    params.require(:encounter).permit(:visit_date, :subjective, :objective, :assessment, :plan, :provider_id)
+    params.require(:encounter).permit(:visit_date, :subjective, :objective, :assessment, :plan, :provider_id, :appointment_id)
   end
 end

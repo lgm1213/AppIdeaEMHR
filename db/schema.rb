@@ -10,12 +10,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_13_211919) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_14_144157) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
 
+  create_table "appointments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "end_time"
+    t.uuid "organization_id", null: false
+    t.uuid "patient_id", null: false
+    t.uuid "provider_id", null: false
+    t.text "reason"
+    t.datetime "start_time"
+    t.integer "status"
+    t.datetime "updated_at", null: false
+    t.index ["organization_id"], name: "index_appointments_on_organization_id"
+    t.index ["patient_id"], name: "index_appointments_on_patient_id"
+    t.index ["provider_id"], name: "index_appointments_on_provider_id"
+  end
+
   create_table "encounters", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "appointment_id"
     t.text "assessment"
     t.datetime "created_at", null: false
     t.text "objective"
@@ -26,6 +42,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_13_211919) do
     t.text "subjective"
     t.datetime "updated_at", null: false
     t.datetime "visit_date"
+    t.index ["appointment_id"], name: "index_encounters_on_appointment_id"
     t.index ["organization_id"], name: "index_encounters_on_organization_id"
     t.index ["patient_id"], name: "index_encounters_on_patient_id"
     t.index ["provider_id"], name: "index_encounters_on_provider_id"
@@ -99,6 +116,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_13_211919) do
     t.index ["organization_id"], name: "index_users_on_organization_id"
   end
 
+  add_foreign_key "appointments", "organizations"
+  add_foreign_key "appointments", "patients"
+  add_foreign_key "appointments", "providers"
+  add_foreign_key "encounters", "appointments"
   add_foreign_key "encounters", "organizations"
   add_foreign_key "encounters", "patients"
   add_foreign_key "encounters", "providers"
