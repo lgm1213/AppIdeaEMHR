@@ -1,47 +1,58 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "AppIdea Admin" %></title>
+    <title>AppIdea System Admin</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
-    <%= yield :head %>
-
-    <%# reuse your existing tailwind configuration %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-gray-100 min-h-screen text-gray-900">
+  <body class="bg-gray-100 min-h-screen">
     
-    <nav class="bg-gray-900 text-white shadow-lg">
+    <nav class="bg-slate-900 text-white shadow-lg">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
+        <div class="flex items-center justify-between h-16">
+          
           <div class="flex items-center gap-8">
-            <span class="text-xl font-bold tracking-tight text-indigo-400">SUPER ADMIN</span>
-            <div class="hidden md:flex space-x-8">
-              <%= link_to "Practices", admin_organizations_path, class: "hover:text-white text-gray-300 px-3 py-2 rounded-md text-sm font-medium" %>
-              <%= link_to "Global Users", admin_users_path, class: "hover:text-white text-gray-300 px-3 py-2 rounded-md text-sm font-medium" %>
+            <div class="flex-shrink-0">
+              <span class="text-indigo-400 font-black text-xl tracking-wider">SUPER ADMIN</span>
+            </div>
+            
+            <div class="hidden md:block">
+              <div class="flex items-baseline space-x-4">
+                <%= link_to "Platform Overview", admin_root_path, 
+                    class: "px-3 py-2 rounded-md text-sm font-medium #{request.path == admin_root_path ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}" 
+                %>
+                
+                <%= link_to "Practices", admin_organizations_path, 
+                    class: "px-3 py-2 rounded-md text-sm font-medium #{request.path.include?('organizations') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}" 
+                %>
+
+                <%= link_to "Global Users", admin_users_path, 
+                    class: "px-3 py-2 rounded-md text-sm font-medium #{request.path.include?('users') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'}" 
+                %>
+              </div>
             </div>
           </div>
-          <div class="flex items-center">
-            <%= link_to "Exit to App", root_path, class: "text-gray-300 hover:text-white text-sm" %>
+
+          <div class="flex items-center gap-6">
+            <span class="text-xs text-slate-500 uppercase tracking-widest hidden sm:block">System Administrator</span>
+            
+            <%= button_to "Exit to App", session_path, method: :delete, class: "text-sm text-slate-300 hover:text-white transition bg-transparent border-0 cursor-pointer" %>
           </div>
         </div>
       </div>
     </nav>
 
-    <div class="fixed top-20 right-4 z-50 space-y-2">
-      <% flash.each do |key, value| %>
-        <div class="<%= key == 'notice' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %> px-4 py-3 rounded shadow-lg border border-transparent">
-          <%= value %>
+    <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+      <% if notice.present? %>
+        <div class="mb-4 rounded-md bg-green-50 p-4 border border-green-200 text-green-700">
+          <%= notice %>
         </div>
       <% end %>
-    </div>
-
-    <main>
+      
       <%= yield %>
     </main>
 

@@ -16,8 +16,15 @@ class ProvidersController < ApplicationController
   def create
     @user = @current_organization.users.build(user_params)
 
+    # Assign System Role
     @user.role = :provider
+
+    # Assign Tenant to the Provider Profile Use safe navigation in case build_provider failed
+    @user.provider ||= @user.build_provider
     @user.provider.organization = @current_organization
+
+    # Set Default Password (Critical for "Add Staff" flow) If the form didn't pass a password, we set a temp one so validation passes.
+    @user.password ||= "password"
 
     if @user.save
       redirect_to providers_path(slug: @current_organization.slug), notice: "Dr. #{@user.last_name} has been successfully onboarded."
@@ -49,14 +56,12 @@ class ProvidersController < ApplicationController
   private
 
   def set_provider
-    # We find the provider by ID (from the URL /providers/:id)
     @provider = @current_organization.providers.find(params[:id])
   end
 
   def user_params
     params.require(:user).permit(
       :first_name, :last_name, :email_address, :password, :password_confirmation,
-      # id is added to provider_attributes so Rails knows which record to update
       provider_attributes: [ :id, :npi, :license_number, :dea_number, :specialty ]
     )
   end

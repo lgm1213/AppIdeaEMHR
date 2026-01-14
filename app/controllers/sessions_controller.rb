@@ -3,6 +3,13 @@ class SessionsController < ApplicationController
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_session_path, alert: "Try again later." }
 
   def new
+    if authenticated?
+      if Current.user.superadmin?
+        redirect_to admin_organizations_path
+      elsif Current.user.organization
+        redirect_to practice_dashboard_path(slug: Current.user.organization.slug)
+      end
+    end
   end
 
   def create
@@ -14,7 +21,7 @@ class SessionsController < ApplicationController
         # Superadmins go to the Global Admin Area
         redirect_to admin_organizations_path
       else
-        # Doctors/Staff go to their specific Clinic Dashboard, User model validates presence of :organization for non-admins
+        # Doctors/Staff go to their specific Clinic Dashboard
         redirect_to practice_dashboard_path(slug: user.organization.slug)
       end
 
