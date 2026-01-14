@@ -1,41 +1,43 @@
 Rails.application.routes.draw do
-  resources :appointments
-  resources :encounters
-  resources :patients
-  # Public & Auth
+  # Public & Authentication Routes
   root "pages#home"
   resource :session
   resources :passwords, param: :token
 
-  # Public Sign Up
+  # Registration Routes
   get "signup", to: "registrations#new"
   post "signup", to: "registrations#create"
 
-  # SuperAdmin Area
+  # SuperAdmin Routes
   namespace :admin do
-    root to: "dashboard#index" # Optional: a main stats page
+    root to: "dashboard#index"
 
     resources :organizations do
-      # This allows drilling down: /admin/organizations/1/facilities
       resources :facilities, only: [ :index ]
       resources :users, only: [ :index ]
     end
 
-    # Global lists (optional, if you want to search ALL users across the DB)
     resources :users, only: [ :index, :show, :edit, :update ]
   end
 
-  # Tenant Area (The Clinical App)
+  # Tenant Area Routes (The Clinical App)
   scope "/:slug" do
+    # The main hub for the clinic
     get "dashboard", to: "dashboard#index", as: :practice_dashboard
+
     resources :facilities
-    resources :patients
     resources :providers
+
+    # Schedule
     resources :appointments
+
+    # Clinical Records
     resources :patients do
+      # Encounters are nested so they always belong to a specific patient
       resources :encounters
     end
   end
 
+  # System Health Check
   get "up" => "rails/health#show", as: :rails_health_check
 end

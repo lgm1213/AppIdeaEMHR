@@ -1,25 +1,27 @@
 class DashboardController < ApplicationController
   def index
     @user = Current.user
-
     @organization = @current_organization
 
-    # Stats for the top cards
-    @patient_count = @organization.patients.count
-    @provider_count = @organization.providers.count
+    if @user.is_provider?
+      @todays_appointments = @organization.appointments
+                                          .where(provider_id: @user.provider.id)
+                                          .where(start_time: Date.current.all_day)
+                                          .includes(:patient)
+                                          .order(:start_time)
 
-    # Recent Clinical Notes (The Feed) We use .includes to load patient/provider names in 1 query (prevent N+1 performance issues)
-    @recent_encounters = @organization.encounters
-                                      .includes(:patient, :provider)
-                                      .order(visit_date: :desc)
+      @my_recent_notes = @organization.encounters
+                                      .where(provider_id: @user.provider.id)
+                                      .includes(:patient)
+                                      .order(created_at: :desc)
                                       .limit(5)
+    else
+      @patient_count = @organization.patients.count
+      @provider_count = @organization.providers.count
+      @total_notes = @organization.encounters.count
 
-    # Newest Patients (Right Sidebar)
-    @recent_patients = @organization.patients
-                                    .order(created_at: :desc)
-                                    .limit(5)
-
-    # Facilities (Preserving your original logic)
-    @facilities = @organization.facilities
+      @recent_activity = @organization.encounters.includes(:patient, :provider).order(created_at: :desc).limit(5)
+      @new_patients = @organization.patients.order(created_at: :desc).limit(5)
+    end
   end
 end

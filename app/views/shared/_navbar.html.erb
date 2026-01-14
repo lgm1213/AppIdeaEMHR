@@ -1,0 +1,86 @@
+<nav class="bg-white border-b border-gray-200 fixed w-full z-50 top-0 start-0">
+  <div class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      
+      <div class="flex">
+        <div class="flex-shrink-0 flex items-center">
+          <%= link_to practice_dashboard_path(slug: @current_organization.slug), class: "font-bold text-xl text-indigo-600 tracking-tight" do %>
+            <%= @current_organization.name %>
+          <% end %>
+        </div>
+
+        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+          
+          <%= link_to "Overview", practice_dashboard_path(slug: @current_organization.slug), 
+          	class: %w[
+							inline-flex items-center px-1 pt-1 
+							border-b-2 text-sm font-medium 
+							#{current_page?(practice_dashboard_path) ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}
+						].join(" ")
+          %>
+
+          <%= link_to "Schedule", appointments_path(slug: @current_organization.slug), 
+          	class: %w[
+							inline-flex items-center px-1 pt-1 
+							border-b-2 text-sm font-medium 
+							#{current_page?(appointments_path) ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}
+						].join(" ") 
+          %>
+
+          <%= link_to "Patients", patients_path(slug: @current_organization.slug), 
+          	class: %w[
+              inline-flex items-center px-1 pt-1 
+              border-b-2 text-sm font-medium 
+              #{current_page?(patients_path) ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}
+            ].join(" ")
+          %>
+
+          <% if Current.user.admin? || Current.user.superadmin? %>
+          	<%= link_to "Staff", providers_path(slug: @current_organization.slug), 
+            	class: %w[
+							inline-flex items-center px-1 pt-1 
+							border-b-2 text-sm font-medium 
+							#{current_page?(providers_path) ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}
+							].join(" ")
+            %>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="hidden sm:ml-6 sm:flex sm:items-center gap-4">
+        
+        <div class="text-right hidden md:block">
+          <p class="text-sm font-medium text-gray-900"><%= Current.user.full_name %></p>
+          <p class="text-xs text-gray-500"><%= Current.user.role.humanize %></p>
+        </div>
+
+        <div class="relative ml-3 group">
+          <button type="button" class="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+            <span class="sr-only">Open user menu</span>
+            <div class="h-9 w-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200">
+              <%= Current.user.initials %>
+            </div>
+          </button>
+
+          <div class="absolute right-0 top-full z-10 pt-2 w-48 hidden group-hover:block">
+            
+            <div class="origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+              <%= link_to "Your Profile", "#", 
+								class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" 
+							%>
+              
+              <div class="border-t border-gray-100 my-1"></div>
+              
+              <%= button_to "Sign out", session_path, 
+								method: :delete, 
+								class: "block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 bg-transparent border-0 cursor-pointer" 
+							%>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</nav>

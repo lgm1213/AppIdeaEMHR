@@ -9,9 +9,12 @@ class SessionsController < ApplicationController
     if user = User.authenticate_by(email_address: params[:email_address], password: params[:password])
       start_new_session_for user
 
+      # Role-Based Redirection
       if user.superadmin?
+        # Superadmins go to the Global Admin Area
         redirect_to admin_organizations_path
       else
+        # Doctors/Staff go to their specific Clinic Dashboard, User model validates presence of :organization for non-admins
         redirect_to practice_dashboard_path(slug: user.organization.slug)
       end
 
