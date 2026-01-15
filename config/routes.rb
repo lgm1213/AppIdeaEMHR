@@ -35,6 +35,10 @@ Rails.application.routes.draw do
     resources :patients do
       resources :encounters
       resources :documents
+      # Discrete Clinical Data
+      resources :allergies, only: [ :create, :destroy ]
+      resources :conditions, only: [ :create, :destroy ]
+      resources :medications, only: [ :create, :destroy ]
     end
   end
 

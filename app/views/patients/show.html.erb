@@ -2,6 +2,7 @@
 
 <div class="space-y-6">
   
+  <%# --- PATIENT HEADER --- %>
   <div class="overflow-hidden rounded-lg bg-white shadow border border-gray-200">
     <div class="px-4 py-5 sm:px-6 flex justify-between items-start">
       <div class="flex items-center gap-4">
@@ -44,256 +45,445 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    
-    <div class="lg:col-span-2 space-y-8">
+  <%# --- TABS NAVIGATION --- %>
+  <div class="border-b border-gray-200 mb-6">
+    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+      <% active_tab = params[:tab] || 'overview' %>
       
-      <div class="bg-white shadow sm:rounded-lg border border-gray-200">
-        <div class="border-b border-gray-200 px-4 py-5 sm:px-6 flex justify-between items-center">
-          <h3 class="text-base font-semibold leading-6 text-gray-900">Clinical History</h3>
-          <%= link_to "New Note", new_patient_encounter_path(slug: @current_organization.slug, patient_id: @patient.id), 
-            class: "text-sm text-indigo-600 hover:text-indigo-500 font-medium" 
-          %>
-        </div>
-        <ul role="list" class="divide-y divide-gray-200">
-          <% @patient.encounters.order(visit_date: :desc).limit(5).each do |encounter| %>
-            <li class="px-4 py-5 sm:px-6 hover:bg-gray-50 transition">
-              <div class="flex justify-between items-start">
-                <div>
-                  <p class="text-sm font-bold text-gray-900"><%= encounter.visit_date.strftime("%B %d, %Y") %></p>
-                  <p class="text-xs text-gray-500">Provider: <%= encounter.provider&.full_name || "Unknown" %></p>
+      <%= link_to "Overview", patient_path(slug: @current_organization.slug, id: @patient.id), 
+          class: "#{active_tab == 'overview' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium" %>
+          
+      <%= link_to "Clinical Data", patient_path(slug: @current_organization.slug, id: @patient.id, tab: 'clinical'), 
+          class: "#{active_tab == 'clinical' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium" %>
+    </nav>
+  </div>
+
+  <% if active_tab == 'overview' %>
+    <%# --- TAB 1: OVERVIEW --- %>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <div class="lg:col-span-2 space-y-8">
+        
+        <%# Clinical History %>
+        <div class="bg-white shadow sm:rounded-lg border border-gray-200">
+          <div class="border-b border-gray-200 px-4 py-5 sm:px-6 flex justify-between items-center">
+            <h3 class="text-base font-semibold leading-6 text-gray-900">Clinical History</h3>
+            <%= link_to "New Note", new_patient_encounter_path(slug: @current_organization.slug, patient_id: @patient.id), 
+              class: "text-sm text-indigo-600 hover:text-indigo-500 font-medium" 
+            %>
+          </div>
+          <ul role="list" class="divide-y divide-gray-200">
+            <% @patient.encounters.order(visit_date: :desc).limit(5).each do |encounter| %>
+              <li class="px-4 py-5 sm:px-6 hover:bg-gray-50 transition">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <p class="text-sm font-bold text-gray-900"><%= encounter.visit_date.strftime("%B %d, %Y") %></p>
+                    <p class="text-xs text-gray-500">Provider: <%= encounter.provider&.full_name || "Unknown" %></p>
+                  </div>
+                  <%= link_to "View Details", patient_encounter_path(slug: @current_organization.slug, patient_id: @patient.id, id: encounter.id), 
+                    class: "text-xs font-medium text-indigo-600 hover:underline" 
+                  %>
                 </div>
-                <%= link_to "View Details", patient_encounter_path(slug: @current_organization.slug, patient_id: @patient.id, id: encounter.id), 
-                  class: "text-xs font-medium text-indigo-600 hover:underline" 
-                %>
-              </div>
-              
-              <div class="mt-3 text-sm text-gray-700 bg-gray-50 p-3 rounded border border-gray-100 font-mono text-xs">
-                <% if encounter.assessment.present? %>
-                  <p><span class="font-bold text-gray-500">Dx:</span> <%= encounter.assessment %></p>
-                <% end %>
-                <% if encounter.plan.present? %>
-                  <p class="mt-1"><span class="font-bold text-gray-500">Rx:</span> <%= encounter.plan.truncate(150) %></p>
-                <% end %>
-              </div>
-            </li>
-          <% end %>
-          
-          <% if @patient.encounters.empty? %>
-            <li class="px-4 py-12 text-center text-gray-500 italic">No clinical history recorded.</li>
-          <% end %>
-        </ul>
-      </div>
-
-      <div class="bg-white shadow sm:rounded-lg border border-gray-200" data-controller="carousel">
-        <div class="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-          <h3 class="text-base font-semibold leading-6 text-gray-900">Patient Documents</h3>
-          <span class="text-xs text-gray-500">PDFs, Images, and Scans</span>
+                
+                <div class="mt-3 text-sm text-gray-700 bg-gray-50 p-3 rounded border border-gray-100 font-mono text-xs">
+                  <% if encounter.assessment.present? %>
+                    <p><span class="font-bold text-gray-500">Dx:</span> <%= encounter.assessment %></p>
+                  <% end %>
+                  <% if encounter.plan.present? %>
+                    <p class="mt-1"><span class="font-bold text-gray-500">Rx:</span> <%= encounter.plan.truncate(150) %></p>
+                  <% end %>
+                </div>
+              </li>
+            <% end %>
+            
+            <% if @patient.encounters.empty? %>
+              <li class="px-4 py-12 text-center text-gray-500 italic">No clinical history recorded.</li>
+            <% end %>
+          </ul>
         </div>
 
-        <div class="p-6">
-          
-          <% if @patient.documents.any? %>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <% @patient.documents.order(created_at: :desc).each_with_index do |doc, index| %>
-                <div class="group relative block w-full aspect-[4/3] rounded-lg bg-gray-100 overflow-hidden border border-gray-200 hover:border-indigo-500 transition cursor-pointer"
-                     data-action="click->carousel#open"
-                     data-index="<%= index %>">
+        <%# Patient Documents %>
+        <div class="bg-white shadow sm:rounded-lg border border-gray-200" data-controller="carousel">
+          <div class="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+            <h3 class="text-base font-semibold leading-6 text-gray-900">Patient Documents</h3>
+            <span class="text-xs text-gray-500">PDFs, Images, and Scans</span>
+          </div>
+
+          <div class="p-6">
+            
+            <% if @patient.documents.any? %>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <% @patient.documents.order(created_at: :desc).each_with_index do |doc, index| %>
+                  <div class="group relative block w-full aspect-[4/3] rounded-lg bg-gray-100 overflow-hidden border border-gray-200 hover:border-indigo-500 transition cursor-pointer"
+                       data-action="click->carousel#open"
+                       data-index="<%= index %>">
+                    
+                    <% if doc.file.representable? %>
+                      <%= image_tag doc.file.representation(resize_to_limit: [300, 300]), class: "object-cover w-full h-full group-hover:opacity-75" %>
+                    <% else %>
+                      <div class="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-50">
+                        <svg class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 2H7a2 2 0 00-2 2v15a2 2 0 002 2z" />
+                        </svg>
+                        <span class="text-xs font-bold uppercase"><%= doc.file.filename.extension %></span>
+                      </div>
+                    <% end %>
+
+                    <div class="absolute inset-x-0 bottom-0 bg-black/60 p-2 text-white text-xs truncate">
+                      <%= doc.file.filename %>
+                    </div>
+                    
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                      <div class="bg-white/90 rounded-full p-2 text-gray-900 shadow-sm">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 5 8.268 7.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+
+            <div data-controller="dropzone" 
+                 class="mb-6 p-6 border-2 border-dashed border-gray-300 rounded-lg text-center bg-gray-50 hover:bg-indigo-50 hover:border-indigo-300 transition"
+                 data-action="dragover->dropzone#highlight dragleave->dropzone#unhighlight drop->dropzone#handleDrop">
+              
+              <%= form_with url: patient_documents_path(slug: @current_organization.slug, patient_id: @patient.id), method: :post, multipart: true do |form| %>
+                <div class="cursor-pointer" data-action="click->dropzone#browse">
+                  <svg class="mx-auto h-10 w-10 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <div class="mt-2 text-sm text-gray-600">
+                    <span class="font-medium text-indigo-600 hover:text-indigo-500">Click to Select Files</span>
+                    <span class="pl-1">or drag and drop here</span>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">Images or PDFs up to 20MB</p>
+                </div>
+                <%= file_field_tag "documents[]", 
+                  multiple: true, 
+                  class: "hidden", 
+                  data: { 
+                    dropzone_target: "input", 
+                    action: "change->dropzone#upload" 
+                  } 
+                %>
+                <%= form.submit "Hidden Submit", 
+                  class: "hidden", 
+                  data: { dropzone_target: "submit" } 
+                %>
+              <% end %>
+            </div>
+
+            <% if @patient.documents.any? %>
+              <ul role="list" class="divide-y divide-gray-100 rounded-md border border-gray-200">
+                <% @patient.documents.order(created_at: :desc).each_with_index do |doc, index| %>
+                  <li class="flex items-center justify-between py-3 pl-4 pr-4 text-sm hover:bg-gray-50">
+                    <div class="flex w-0 flex-1 items-center">
+                      <button type="button" class="flex items-center group text-left" data-action="click->carousel#open" data-index="<%= index %>">
+                        <svg class="h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M15.621 4.379a3 3 0 00-4.242 0l-7 7a3 3 0 004.241 4.243h.001l.497-.5a.75.75 0 011.064 1.057l-.498.501-.002.002a4.5 4.5 0 01-6.364-6.364l7-7a4.5 4.5 0 016.368 6.36l-3.455 3.553A2.625 2.625 0 119.52 9.52l3.45-3.451a.75.75 0 111.061 1.06l-3.45 3.451a1.125 1.125 0 001.587 1.595l3.454-3.553a3 3 0 000-4.242z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="ml-2 truncate font-medium text-gray-900 group-hover:text-indigo-600 group-hover:underline">
+                          <%= doc.file.filename %>
+                        </span>
+                      </button>
+                      
+                      <span class="ml-2 text-xs text-gray-500 hidden sm:block">
+                        <%= (doc.file.byte_size / 1024.0).round(0) %> KB 
+                        <span class="mx-1">•</span>
+                        <%= doc.created_at.strftime("%b %d, %Y at %l:%M %p") %>
+                        <span class="mx-1">•</span> 
+                        <%= doc.uploader&.full_name || "System" %>
+                      </span>
+                    </div>
+                    
+                    <div class="ml-4 flex-shrink-0 flex gap-4">
+                      <%= link_to "Download", rails_blob_path(doc.file, disposition: "attachment"), class: "font-medium text-indigo-600 hover:text-indigo-500" %>
+                      <%= link_to "Delete", patient_document_path(slug: @current_organization.slug, patient_id: @patient.id, id: doc.id), 
+                        data: { turbo_method: :delete, turbo_confirm: "Permanently delete this file?" }, 
+                        class: "font-medium text-red-600 hover:text-red-500" 
+                      %>
+                    </div>
+                  </li>
+                <% end %>
+              </ul>
+            <% end %>
+
+          </div>
+
+          <div data-carousel-target="modal" class="hidden relative z-[100]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-900/90 transition-opacity backdrop-blur-sm"></div>
+
+            <div class="fixed inset-0 z-10 overflow-y-auto">
+              <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0 h-screen">
+                
+                <button type="button" data-action="click->carousel#close" class="absolute top-5 right-5 text-white/70 hover:text-white z-50 p-2">
+                  <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+
+                <div class="relative w-full h-full max-h-screen flex items-center justify-center">
                   
-                  <% if doc.file.representable? %>
-                    <%= image_tag doc.file.representation(resize_to_limit: [300, 300]), class: "object-cover w-full h-full group-hover:opacity-75" %>
-                  <% else %>
-                    <div class="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-50">
-                      <svg class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 2H7a2 2 0 00-2 2v15a2 2 0 002 2z" />
-                      </svg>
-                      <span class="text-xs font-bold uppercase"><%= doc.file.filename.extension %></span>
+                  <button data-action="click->carousel#previous" class="absolute left-4 z-20 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition">
+                    <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+
+                  <% @patient.documents.order(created_at: :desc).each_with_index do |doc, index| %>
+                    <div data-carousel-target="slide" class="hidden w-full h-full flex flex-col items-center justify-center px-12 py-8">
+                      
+                      <div class="relative max-h-[85vh] w-auto max-w-full bg-black shadow-2xl rounded-lg overflow-hidden flex items-center justify-center">
+                        <% if doc.file.representable? %>
+                          <%= image_tag doc.file.representation(resize_to_limit: [1200, 1000]), 
+                            class: "max-h-[85vh] w-auto object-contain" 
+                          %>
+                        <% else %>
+                          <div class="h-96 w-96 bg-gray-800 flex flex-col items-center justify-center text-gray-400">
+                            <svg class="h-20 w-20 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p class="text-xl font-bold"><%= doc.file.filename %></p>
+                            <p class="mt-2 text-sm">Preview not available.</p>
+                            <%= link_to "Download File", rails_blob_path(doc.file, disposition: "attachment"), 
+                              class: "mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500" 
+                            %>
+                          </div>
+                        <% end %>
+                      </div>
+
+                      <div class="mt-4 text-white text-center">
+                        <p class="text-lg font-medium"><%= doc.file.filename %></p>
+                        <p class="text-sm text-gray-400">
+                          Page <span data-carousel-target="counter"><%= index + 1 %> / <%= @patient.documents.count %></span>
+                        </p>
+                      </div>
+
                     </div>
                   <% end %>
 
-                  <div class="absolute inset-x-0 bottom-0 bg-black/60 p-2 text-white text-xs truncate">
-                    <%= doc.file.filename %>
-                  </div>
-                  
-                  <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                    <div class="bg-white/90 rounded-full p-2 text-gray-900 shadow-sm">
-                      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 5 8.268 7.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </div>
-                  </div>
+                  <button data-action="click->carousel#next" class="absolute right-4 z-20 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition">
+                    <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+
                 </div>
-              <% end %>
-            </div>
-          <% end %>
-
-          <div data-controller="dropzone" 
-               class="mb-6 p-6 border-2 border-dashed border-gray-300 rounded-lg text-center bg-gray-50 hover:bg-indigo-50 hover:border-indigo-300 transition"
-               data-action="dragover->dropzone#highlight dragleave->dropzone#unhighlight drop->dropzone#handleDrop">
-            
-            <%= form_with url: patient_documents_path(slug: @current_organization.slug, patient_id: @patient.id), method: :post, multipart: true do |form| %>
-              <div class="cursor-pointer" data-action="click->dropzone#browse">
-                <svg class="mx-auto h-10 w-10 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-                <div class="mt-2 text-sm text-gray-600">
-                  <span class="font-medium text-indigo-600 hover:text-indigo-500">Click to Select Files</span>
-                  <span class="pl-1">or drag and drop here</span>
-                </div>
-                <p class="text-xs text-gray-500 mt-1">Images or PDFs up to 20MB</p>
-              </div>
-              <%= file_field_tag "documents[]", 
-                multiple: true, 
-                class: "hidden", 
-                data: { 
-                  dropzone_target: "input", 
-                  action: "change->dropzone#upload" 
-                } 
-              %>
-              <%= form.submit "Hidden Submit", 
-                class: "hidden", 
-                data: { dropzone_target: "submit" } 
-              %>
-            <% end %>
-          </div>
-
-          <% if @patient.documents.any? %>
-            <ul role="list" class="divide-y divide-gray-100 rounded-md border border-gray-200">
-              <% @patient.documents.order(created_at: :desc).each_with_index do |doc, index| %>
-                <li class="flex items-center justify-between py-3 pl-4 pr-4 text-sm hover:bg-gray-50">
-                  <div class="flex w-0 flex-1 items-center">
-                    <button type="button" class="flex items-center group text-left" data-action="click->carousel#open" data-index="<%= index %>">
-                      <svg class="h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M15.621 4.379a3 3 0 00-4.242 0l-7 7a3 3 0 004.241 4.243h.001l.497-.5a.75.75 0 011.064 1.057l-.498.501-.002.002a4.5 4.5 0 01-6.364-6.364l7-7a4.5 4.5 0 016.368 6.36l-3.455 3.553A2.625 2.625 0 119.52 9.52l3.45-3.451a.75.75 0 111.061 1.06l-3.45 3.451a1.125 1.125 0 001.587 1.595l3.454-3.553a3 3 0 000-4.242z" clip-rule="evenodd" />
-                      </svg>
-                      <span class="ml-2 truncate font-medium text-gray-900 group-hover:text-indigo-600 group-hover:underline">
-                        <%= doc.file.filename %>
-                      </span>
-                    </button>
-                    
-                    <span class="ml-2 text-xs text-gray-500 hidden sm:block">
-                      <%= (doc.file.byte_size / 1024.0).round(0) %> KB 
-                      <span class="mx-1">•</span>
-                      <%= doc.created_at.strftime("%b %d, %Y at %l:%M %p") %>
-                      <span class="mx-1">•</span> 
-                      <%= doc.uploader&.full_name || "System" %>
-                    </span>
-                  </div>
-                  
-                  <div class="ml-4 flex-shrink-0 flex gap-4">
-                    <%= link_to "Download", rails_blob_path(doc.file, disposition: "attachment"), class: "font-medium text-indigo-600 hover:text-indigo-500" %>
-                    <%= link_to "Delete", patient_document_path(slug: @current_organization.slug, patient_id: @patient.id, id: doc.id), 
-                      data: { turbo_method: :delete, turbo_confirm: "Permanently delete this file?" }, 
-                      class: "font-medium text-red-600 hover:text-red-500" 
-                    %>
-                  </div>
-                </li>
-              <% end %>
-            </ul>
-          <% end %>
-
-        </div>
-
-        <div data-carousel-target="modal" class="hidden relative z-[100]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-          <div class="fixed inset-0 bg-gray-900/90 transition-opacity backdrop-blur-sm"></div>
-
-          <div class="fixed inset-0 z-10 overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0 h-screen">
-              
-              <button type="button" data-action="click->carousel#close" class="absolute top-5 right-5 text-white/70 hover:text-white z-50 p-2">
-                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-
-              <div class="relative w-full h-full max-h-screen flex items-center justify-center">
-                
-                <button data-action="click->carousel#previous" class="absolute left-4 z-20 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition">
-                  <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-
-                <% @patient.documents.order(created_at: :desc).each_with_index do |doc, index| %>
-                  <div data-carousel-target="slide" class="hidden w-full h-full flex flex-col items-center justify-center px-12 py-8">
-                    
-                    <div class="relative max-h-[85vh] w-auto max-w-full bg-black shadow-2xl rounded-lg overflow-hidden flex items-center justify-center">
-                      <% if doc.file.representable? %>
-                        <%= image_tag doc.file.representation(resize_to_limit: [1200, 1000]), 
-                          class: "max-h-[85vh] w-auto object-contain" 
-                        %>
-                      <% else %>
-                        <div class="h-96 w-96 bg-gray-800 flex flex-col items-center justify-center text-gray-400">
-                           <svg class="h-20 w-20 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                           </svg>
-                           <p class="text-xl font-bold"><%= doc.file.filename %></p>
-                           <p class="mt-2 text-sm">Preview not available.</p>
-                           <%= link_to "Download File", rails_blob_path(doc.file, disposition: "attachment"), 
-                            class: "mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500" 
-                           %>
-                        </div>
-                      <% end %>
-                    </div>
-
-                    <div class="mt-4 text-white text-center">
-                      <p class="text-lg font-medium"><%= doc.file.filename %></p>
-                      <p class="text-sm text-gray-400">
-                        Page <span data-carousel-target="counter"><%= index + 1 %> / <%= @patient.documents.count %></span>
-                      </p>
-                    </div>
-
-                  </div>
-                <% end %>
-
-                <button data-action="click->carousel#next" class="absolute right-4 z-20 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition">
-                  <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-
               </div>
             </div>
           </div>
+
         </div>
 
       </div>
 
+      <div class="space-y-6">
+        <div class="bg-white shadow sm:rounded-lg border border-gray-200">
+          <div class="border-b border-gray-200 px-4 py-4 sm:px-6">
+            <h3 class="text-base font-semibold leading-6 text-gray-900">Upcoming Visits</h3>
+          </div>
+          <ul class="divide-y divide-gray-200">
+            <% upcoming = @current_organization.appointments.where(patient: @patient).where("start_time >= ?", Time.current).order(:start_time) %>
+            <% upcoming.each do |appt| %>
+              <li class="px-4 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="flex-shrink-0 flex flex-col items-center bg-indigo-50 rounded p-1 text-indigo-700 w-12">
+                    <span class="text-xs font-bold"><%= appt.start_time.strftime("%b") %></span>
+                    <span class="text-lg font-bold"><%= appt.start_time.day %></span>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-gray-900"><%= appt.start_time.strftime("%l:%M %p") %></p>
+                    <p class="text-xs text-gray-500"><%= appt.provider.full_name %></p>
+                  </div>
+                </div>
+              </li>
+            <% end %>
+            <% if upcoming.empty? %>
+              <li class="px-4 py-6 text-center text-sm text-gray-500">No upcoming visits.</li>
+              <li class="px-4 pb-4 text-center">
+                <%= link_to "Schedule Now", new_appointment_path(slug: @current_organization.slug, patient_id: @patient.id), 
+                class: "text-sm text-indigo-600 font-medium hover:underline" 
+              %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+
     </div>
 
-    <div class="space-y-6">
+  <% elsif active_tab == 'clinical' %>
+    
+    <%# --- TAB 2: CLINICAL DATA --- %>
+    
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+      
+      <%# 1. ALLERGIES %>
       <div class="bg-white shadow sm:rounded-lg border border-gray-200">
-        <div class="border-b border-gray-200 px-4 py-4 sm:px-6">
-          <h3 class="text-base font-semibold leading-6 text-gray-900">Upcoming Visits</h3>
+        <div class="px-4 py-5 sm:px-6 bg-red-50 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="text-base font-semibold leading-6 text-gray-900">Allergies</h3>
         </div>
+        
         <ul class="divide-y divide-gray-200">
-          <% upcoming = @current_organization.appointments.where(patient: @patient).where("start_time >= ?", Time.current).order(:start_time) %>
-          <% upcoming.each do |appt| %>
-            <li class="px-4 py-4">
-              <div class="flex items-center gap-3">
-                <div class="flex-shrink-0 flex flex-col items-center bg-indigo-50 rounded p-1 text-indigo-700 w-12">
-                  <span class="text-xs font-bold"><%= appt.start_time.strftime("%b") %></span>
-                  <span class="text-lg font-bold"><%= appt.start_time.day %></span>
-                </div>
-                <div>
-                  <p class="text-sm font-medium text-gray-900"><%= appt.start_time.strftime("%l:%M %p") %></p>
-                  <p class="text-xs text-gray-500"><%= appt.provider.full_name %></p>
-                </div>
+          <% @patient.allergies.each do |allergy| %>
+            <li class="px-4 py-4 flex justify-between">
+              <div>
+                <p class="font-bold text-gray-900"><%= allergy.name %></p>
+                <p class="text-xs text-red-600"><%= allergy.severity %> • <%= allergy.reaction %></p>
               </div>
+              <%= button_to "×", 
+                patient_allergy_path(slug: @current_organization.slug, patient_id: @patient.id, id: allergy.id), 
+                method: :delete, 
+                class: "text-gray-400 hover:text-red-600 font-bold" 
+              %>
             </li>
           <% end %>
-          <% if upcoming.empty? %>
-            <li class="px-4 py-6 text-center text-sm text-gray-500">No upcoming visits.</li>
-            <li class="px-4 pb-4 text-center">
-              <%= link_to "Schedule Now", new_appointment_path(slug: @current_organization.slug, patient_id: @patient.id), 
-              class: "text-sm text-indigo-600 font-medium hover:underline" 
-            %>
-            </li>
+          <% if @patient.allergies.empty? %>
+             <li class="px-4 py-6 text-center text-sm text-gray-500 italic">No allergies recorded.</li>
           <% end %>
         </ul>
+
+        <div class="p-4 bg-gray-50 border-t border-gray-200">
+          <%= form_with model: Allergy.new, url: patient_allergies_path(slug: @current_organization.slug, patient_id: @patient.id) do |f| %>
+            <div class="flex gap-2">
+              <%= f.text_field :name, 
+                placeholder: "Allergen (e.g. Peanuts)", 
+                class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6" 
+              %>
+              <%= f.select :severity, 
+                ['Mild', 'Moderate', 'Severe'], 
+                {}, 
+                class: "block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6" 
+              %>
+              <%= f.submit "Add", 
+                class: "rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" 
+              %>
+            </div>
+            <%= f.hidden_field :status, value: "Active" %>
+            <div class="mt-2">
+               <%= f.text_field :reaction, 
+                placeholder: "Reaction (e.g. Hives)", 
+                class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6" 
+              %>
+            </div>
+          <% end %>
+        </div>
       </div>
+
+      <%# 2. MEDICATIONS %>
+      <div class="bg-white shadow sm:rounded-lg border border-gray-200">
+        <div class="px-4 py-5 sm:px-6 bg-blue-50 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="text-base font-semibold leading-6 text-gray-900">Active Medications</h3>
+        </div>
+        
+        <ul class="divide-y divide-gray-200">
+          <% @patient.medications.where(status: 'Active').each do |med| %>
+            <li class="px-4 py-4 flex justify-between">
+              <div>
+                <p class="font-bold text-gray-900"><%= med.name %></p>
+                <p class="text-xs text-gray-500"><%= med.dosage %> • <%= med.frequency %></p>
+              </div>
+              <%= button_to "×", patient_medication_path(slug: @current_organization.slug, patient_id: @patient.id, id: med.id), 
+                method: :delete, 
+                class: "text-gray-400 hover:text-red-600 font-bold" 
+              %>
+            </li>
+          <% end %>
+           <% if @patient.medications.where(status: 'Active').empty? %>
+             <li class="px-4 py-6 text-center text-sm text-gray-500 italic">No active medications.</li>
+          <% end %>
+        </ul>
+
+        <div class="p-4 bg-gray-50 border-t border-gray-200">
+          <%= form_with model: Medication.new, url: patient_medications_path(slug: @current_organization.slug, patient_id: @patient.id) do |f| %>
+            <div class="grid grid-cols-2 gap-2 mb-2">
+              <%= f.text_field :name, 
+                placeholder: "Medication Name", 
+                class: "col-span-2 block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 sm:text-sm" 
+              %>
+              <%= f.text_field :dosage, 
+                placeholder: "Dosage (10mg)", 
+                class: "block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 sm:text-sm" 
+              %>
+              <%= f.text_field :frequency, 
+                placeholder: "Freq (Daily)", 
+                class: "block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 sm:text-sm" 
+              %>
+            </div>
+            <%= f.hidden_field :status, value: "Active" %>
+            <%= f.submit "Add Prescription", 
+              class: "w-full rounded bg-indigo-600 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" 
+            %>
+          <% end %>
+        </div>
+      </div>
+
+      <%# 3. PROBLEM LIST (CONDITIONS) %>
+      <div class="bg-white shadow sm:rounded-lg border border-gray-200">
+        <div class="px-4 py-5 sm:px-6 bg-yellow-50 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="text-base font-semibold leading-6 text-gray-900">Problem List</h3>
+        </div>
+        
+        <ul class="divide-y divide-gray-200">
+          <% @patient.conditions.each do |condition| %>
+            <li class="px-4 py-4 flex justify-between">
+              <div>
+                <p class="font-bold text-gray-900"><%= condition.name %></p>
+                <div class="flex gap-2 text-xs text-gray-500">
+                  <span class="font-mono bg-gray-100 px-1 rounded">
+                    <%= condition.code_system %>: <%= condition.code.presence || "N/A" %>
+                  </span>
+                  <span>• Onset: <%= condition.onset_date&.strftime("%m/%d/%Y") || "Unknown" %></span>
+                  <span>• <%= condition.status %></span>
+                </div>
+              </div>
+              <%= button_to "×", patient_condition_path(slug: @current_organization.slug, patient_id: @patient.id, id: condition.id), 
+                method: :delete, 
+                class: "text-gray-400 hover:text-red-600 font-bold" 
+              %>
+            </li>
+          <% end %>
+          <% if @patient.conditions.empty? %>
+             <li class="px-4 py-6 text-center text-sm text-gray-500 italic">No active conditions.</li>
+          <% end %>
+        </ul>
+
+        <%# Add Condition Form %>
+        <div class="p-4 bg-gray-50 border-t border-gray-200">
+          <%= form_with model: Condition.new, url: patient_conditions_path(slug: @current_organization.slug, patient_id: @patient.id) do |f| %>
+            <div class="space-y-2">
+              <div class="flex gap-2">
+                <%= f.text_field :name, 
+                  placeholder: "Condition (e.g. Hypertension)", 
+                  class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6" 
+                %>
+              </div>
+              
+              <div class="flex gap-2">
+                 <%= f.select :code_system, ["ICD-10", "ICD-11", "SNOMED"], {}, class: "block w-32 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6" %>
+                 <%= f.text_field :code, placeholder: "Code", class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6" %>
+              </div>
+
+              <div class="flex gap-2">
+                <%= f.date_field :onset_date, 
+                  class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6" 
+                %>
+                <%= f.hidden_field :status, value: "Active" %>
+                <%= f.submit "Add", 
+                  class: "rounded bg-white px-4 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" 
+                %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
     </div>
 
-  </div>
+  <% end %>
+
 </div>

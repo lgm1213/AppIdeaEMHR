@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_15_181110) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_15_224549) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -43,6 +43,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_181110) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "allergies", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.uuid "patient_id", null: false
+    t.string "reaction"
+    t.string "severity"
+    t.string "status"
+    t.datetime "updated_at", null: false
+    t.index ["patient_id"], name: "index_allergies_on_patient_id"
+  end
+
   create_table "appointments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "end_time"
@@ -56,6 +67,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_181110) do
     t.index ["organization_id"], name: "index_appointments_on_organization_id"
     t.index ["patient_id"], name: "index_appointments_on_patient_id"
     t.index ["provider_id"], name: "index_appointments_on_provider_id"
+  end
+
+  create_table "conditions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "code"
+    t.string "code_system", default: "ICD-10"
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.date "onset_date"
+    t.uuid "patient_id", null: false
+    t.string "status"
+    t.datetime "updated_at", null: false
+    t.index ["patient_id"], name: "index_conditions_on_patient_id"
   end
 
   create_table "documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -97,6 +120,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_181110) do
     t.datetime "updated_at", null: false
     t.string "zip_code"
     t.index ["organization_id"], name: "index_facilities_on_organization_id"
+  end
+
+  create_table "medications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "dosage"
+    t.string "frequency"
+    t.string "name"
+    t.uuid "patient_id", null: false
+    t.uuid "prescribed_by_id", null: false
+    t.string "status"
+    t.datetime "updated_at", null: false
+    t.index ["patient_id"], name: "index_medications_on_patient_id"
+    t.index ["prescribed_by_id"], name: "index_medications_on_prescribed_by_id"
   end
 
   create_table "organizations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -159,9 +195,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_181110) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "allergies", "patients"
   add_foreign_key "appointments", "organizations"
   add_foreign_key "appointments", "patients"
   add_foreign_key "appointments", "providers"
+  add_foreign_key "conditions", "patients"
   add_foreign_key "documents", "patients"
   add_foreign_key "documents", "users", column: "uploader_id"
   add_foreign_key "encounters", "appointments"
@@ -169,6 +207,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_181110) do
   add_foreign_key "encounters", "patients"
   add_foreign_key "encounters", "providers"
   add_foreign_key "facilities", "organizations"
+  add_foreign_key "medications", "patients"
+  add_foreign_key "medications", "users", column: "prescribed_by_id"
   add_foreign_key "patients", "organizations"
   add_foreign_key "providers", "organizations"
   add_foreign_key "providers", "users"
