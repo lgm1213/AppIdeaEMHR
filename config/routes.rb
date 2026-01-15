@@ -13,7 +13,7 @@ Rails.application.routes.draw do
     root to: "dashboard#index"
 
     resources :organizations do
-      resources :facilities, only: [ :index ]
+      resources :facilities, only: [ :index, :new, :create ]
       resources :users, only: [ :index ]
     end
 
