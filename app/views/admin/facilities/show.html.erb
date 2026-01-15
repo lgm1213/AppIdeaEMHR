@@ -1,0 +1,57 @@
+<div class="max-w-3xl mx-auto">
+  
+  <div class="mb-6">
+    <%= link_to "← Back to #{@organization.name}", admin_organization_path(@organization), 
+      class: "text-sm text-indigo-600 hover:text-indigo-500 font-medium" 
+    %>
+  </div>
+
+  <div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="min-w-0 flex-1">
+      <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+        <%= @facility.name %>
+      </h2>
+      <p class="mt-1 text-sm text-gray-500">
+        Facility ID: <code class="text-xs font-mono bg-gray-100 px-1 py-0.5 rounded"><%= @facility.id %></code>
+      </p>
+    </div>
+    <div class="mt-4 flex md:ml-4 md:mt-0">
+      <%= link_to "Edit Facility", edit_admin_organization_facility_path(@organization, @facility), 
+        class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" 
+      %>
+    </div>
+  </div>
+
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+      <h3 class="text-base font-semibold leading-6 text-gray-900">Location Details</h3>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+      <dl class="sm:divide-y sm:divide-gray-200">
+        
+        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Facility Name</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0"><%= @facility.name %></dd>
+        </div>
+
+        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Address</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+            <%= @facility.address %><br>
+            <% if @facility.respond_to?(:city) %>
+              <%= @facility.city %>, <%= @facility.state %> <%= @facility.zip_code %>
+            <% end %>
+          </dd>
+        </div>
+
+        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Phone</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+            <%= @facility.respond_to?(:phone) ? @facility.phone : "N/A" %>
+          </dd>
+        </div>
+
+      </dl>
+    </div>
+  </div>
+</div>

@@ -1,51 +1,66 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-  <div class="sm:flex sm:items-center">
-    <div class="sm:flex-auto">
-      <h1 class="text-3xl font-bold leading-6 text-gray-900">Global Users</h1>
-      <p class="mt-2 text-sm text-gray-700">A list of all users across all organizations.</p>
-    </div>
+<div class="md:flex md:items-center md:justify-between mb-8">
+  <div class="min-w-0 flex-1">
+    <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">Global Users</h2>
+    <p class="mt-1 text-sm text-gray-500">A master list of every user account across all organizations.</p>
   </div>
+</div>
 
-  <div class="mt-8 flow-root">
-    <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-      <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-        <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-          <table class="min-w-full divide-y divide-gray-300">
-            <thead class="bg-gray-50">
-              <tr>
-                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Email Address</th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Role</th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Organization</th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Joined</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 bg-white">
-              <% @users.each do |user| %>
-                <tr>
-                  <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                    <%= user.email_address %>
-                  </td>
-                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                      <%= user.role %>
-                    </span>
-                  </td>
-                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <% if user.organization %>
-                      <%= link_to user.organization.name, admin_organization_path(user.organization), class: "text-indigo-600 hover:text-indigo-900 hover:underline" %>
-                    <% else %>
-                      <span class="text-gray-400 italic">None</span>
-                    <% end %>
-                  </td>
-                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <%= user.created_at.strftime("%b %d, %Y") %>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg bg-white">
+  <table class="min-w-full divide-y divide-gray-300">
+    <thead class="bg-gray-50">
+      <tr>
+        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">User</th>
+        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Organization</th>
+        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Role</th>
+        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Joined</th>
+        <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+          <span class="sr-only">Actions</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200 bg-white">
+      <% @users.each do |user| %>
+        <tr>
+          <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+            <div class="flex items-center">
+              <div class="h-10 w-10 flex-shrink-0">
+                <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200">
+                  <%= user.initials %>
+                </div>
+              </div>
+              <div class="ml-4">
+                <div class="font-medium text-gray-900"><%= user.full_name %></div>
+                <div class="text-gray-500"><%= user.email_address %></div>
+              </div>
+            </div>
+          </td>
+          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+            <% if user.organization %>
+              <%= link_to user.organization.name, admin_organization_path(user.organization), 
+                class: "hover:text-indigo-600 hover:underline" 
+              %>
+            <% else %>
+              <span class="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">System Admin</span>
+            <% end %>
+          </td>
+          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+            <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+              <%= user.role.humanize %>
+            </span>
+          </td>
+          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+            <%= user.created_at.strftime("%b %d, %Y") %>
+          </td>
+          <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+            <%= link_to "View", admin_user_path(user), 
+              class: "text-indigo-600 hover:text-indigo-900 mr-4" 
+            %>
+            <%= link_to "Edit", edit_admin_user_path(user), 
+              class: "text-gray-600 hover:text-gray-900" 
+            %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 </div>

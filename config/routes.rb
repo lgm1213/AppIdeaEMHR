@@ -13,8 +13,8 @@ Rails.application.routes.draw do
     root to: "dashboard#index"
 
     resources :organizations do
-      resources :facilities, only: [ :index, :new, :create ]
-      resources :users, only: [ :index ]
+      resources :facilities, only: [ :index, :new, :create, :show, :edit, :update ]
+      resources :users, only: [ :index, :new, :create ]
     end
 
     resources :users, only: [ :index, :show, :edit, :update ]
@@ -33,7 +33,6 @@ Rails.application.routes.draw do
 
     # Clinical Records
     resources :patients do
-      # Encounters are nested so they always belong to a specific patient
       resources :encounters
     end
   end
