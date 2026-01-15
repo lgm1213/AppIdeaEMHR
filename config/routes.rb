@@ -34,6 +34,7 @@ Rails.application.routes.draw do
     # Clinical Records
     resources :patients do
       resources :encounters
+      resources :documents
     end
   end
 
