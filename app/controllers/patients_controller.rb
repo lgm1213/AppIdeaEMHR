@@ -9,6 +9,17 @@ class PatientsController < ApplicationController
 
   # GET /:slug/patients/1
   def show
+    # Handles Tabs
+    @active_tab = params[:tab] || "overview"
+
+    # Lazy Loads Audit Logs only if requested
+    if @active_tab == "audit"
+      @audit_logs = PaperTrail::Version
+                      .where(item_type: "Patient", item_id: @patient.id)
+                      .or(PaperTrail::Version.where(patient_id: @patient.id))
+                      .order(created_at: :desc)
+                      .includes(:item) # Optional: eager load items if needed
+    end
   end
 
   # GET /:slug/patients/new

@@ -10,7 +10,9 @@ module AppIdeaEmhr
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
-
+    config.time_zone = "Eastern Time (US & Canada)"
+    # Store dates in the DB as UTC, but display them in Eastern
+    config.active_record.default_timezone = :utc
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.

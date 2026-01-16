@@ -51,18 +51,22 @@
       <% active_tab = params[:tab] || 'overview' %>
       
       <%= link_to "Overview", patient_path(slug: @current_organization.slug, id: @patient.id), 
-          class: "#{active_tab == 'overview' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium" %>
+        class: "#{active_tab == 'overview' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium" 
+      %>
           
       <%= link_to "Clinical Data", patient_path(slug: @current_organization.slug, id: @patient.id, tab: 'clinical'), 
-          class: "#{active_tab == 'clinical' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium" %>
+        class: "#{active_tab == 'clinical' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium" 
+      %>
+
+      <%= link_to "Audit Log", patient_path(slug: @current_organization.slug, id: @patient.id, tab: 'audit'), 
+          class: "#{active_tab == 'audit' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium" 
+      %>
     </nav>
   </div>
 
+  <%# --- Tab 1: OVERVIEW --- %>
   <% if active_tab == 'overview' %>
-    <%# --- TAB 1: OVERVIEW --- %>
-
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
       <div class="lg:col-span-2 space-y-8">
         
         <%# Clinical History %>
@@ -371,15 +375,11 @@
           </div>
         </div>
       </div>
-
       
-
     </div>
 
+  <%# --- Tab: Clinical Data --- %>
   <% elsif active_tab == 'clinical' %>
-    
-    <%# --- TAB: CLINICAL DATA --- %>
-    
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
       
       <%# --- ALLERGIES %>
@@ -558,7 +558,10 @@
                    <span class="text-gray-400 ml-1">(<%= lab.date&.strftime("%m/%d/%Y") %>)</span>
                 </p>
               </div>
-              <%= button_to "×", patient_lab_path(slug: @current_organization.slug, patient_id: @patient.id, id: lab.id), method: :delete, class: "text-gray-400 hover:text-red-600 font-bold" %>
+              <%= button_to "×", patient_lab_path(slug: @current_organization.slug, patient_id: @patient.id, id: lab.id), 
+                method: :delete, 
+                class: "text-gray-400 hover:text-red-600 font-bold" 
+              %>
             </li>
           <% end %>
           <% if @patient.labs.empty? %>
@@ -571,13 +574,27 @@
           <%= form_with model: Lab.new, url: patient_labs_path(slug: @current_organization.slug, patient_id: @patient.id) do |f| %>
             <div class="space-y-2">
               <div class="flex gap-2">
-                <%= f.text_field :test_type, placeholder: "Test Name (e.g. CBC)", class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
-                <%= f.date_field :date, class: "block w-32 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+                <%= f.text_field :test_type, 
+                  placeholder: "Test Name (e.g. CBC)", 
+                  class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" 
+                %>
+                <%= f.date_field :date, 
+                  class: "block w-32 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" 
+                %>
               </div>
               <div class="flex gap-2">
-                <%= f.text_field :result, placeholder: "Result (Optional)", class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
-                <%= f.select :status, ["Pending", "Completed"], {}, class: "block w-32 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
-                <%= f.submit "Add", class: "rounded bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+                <%= f.text_field :result, 
+                  placeholder: "Result (Optional)", 
+                  class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" 
+                %>
+                <%= f.select :status, 
+                  ["Pending", "Completed"], 
+                  {}, 
+                  class: "block w-32 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" 
+                %>
+                <%= f.submit "Add", 
+                  class: "rounded bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" 
+                %>
               </div>
             </div>
           <% end %>
@@ -599,7 +616,10 @@
                    <%= dme.status %> • Ordered: <%= dme.prescribed_date&.strftime("%m/%d/%Y") %>
                 </p>
               </div>
-              <%= button_to "×", patient_dme_path(slug: @current_organization.slug, patient_id: @patient.id, id: dme.id), method: :delete, class: "text-gray-400 hover:text-red-600 font-bold" %>
+              <%= button_to "×", patient_dme_path(slug: @current_organization.slug, patient_id: @patient.id, id: dme.id), 
+                method: :delete, 
+                class: "text-gray-400 hover:text-red-600 font-bold" 
+              %>
             </li>
           <% end %>
           <% if @patient.dmes.empty? %>
@@ -611,15 +631,46 @@
         <div class="p-4 bg-gray-50 border-t border-gray-200">
           <%= form_with model: Dme.new, url: patient_dmes_path(slug: @current_organization.slug, patient_id: @patient.id) do |f| %>
             <div class="flex gap-2">
-              <%= f.text_field :name, placeholder: "Item (e.g. Wheelchair)", class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+              <%= f.text_field :name, 
+                placeholder: "Item (e.g. Wheelchair)", 
+                class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" 
+              %>
             </div>
             <div class="flex gap-2 mt-2">
-              <%= f.date_field :prescribed_date, class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
-              <%= f.select :status, ["Ordered", "Delivered", "Returned"], {}, class: "block w-32 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
-              <%= f.submit "Add", class: "rounded bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+              <%= f.date_field :prescribed_date, 
+                class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" 
+              %>
+              <%= f.select :status, 
+                ["Ordered", "Delivered", "Returned"], 
+                {}, 
+                class: "block w-32 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" 
+              %>
+              <%= f.submit "Add", 
+                class: "rounded bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" 
+              %>
             </div>
           <% end %>
         </div>
+      </div>
+    </div>
+
+  <%# --- Tab: AUDIT LOG --- %>
+  <% elsif active_tab == 'audit' %>
+    
+    <div class="bg-white shadow sm:rounded-lg border border-gray-200 overflow-hidden">
+      <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+        <h3 class="text-base font-semibold leading-6 text-gray-900">System Audit Log</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Historical record of all changes made to this patient's file.</p>
+      </div>
+      
+      <div class="flow-root">
+        <ul role="list" class="divide-y divide-gray-200">
+          <% if @audit_logs.any? %>
+            <%= render partial: "patients/tabs/audit_entry", collection: @audit_logs, as: :version %>
+          <% else %>
+            <li class="px-4 py-8 text-center text-sm text-gray-500 italic">No history recorded yet.</li>
+          <% end %>
+        </ul>
       </div>
     </div>
 

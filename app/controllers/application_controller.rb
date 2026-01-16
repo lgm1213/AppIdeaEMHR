@@ -5,6 +5,9 @@ class ApplicationController < ActionController::Base
   before_action :require_authentication
   before_action :authorize_tenant!, if: -> { params[:slug].present? }
 
+  # Papertrail Audit Log
+  before_action :set_paper_trail_whodunnit
+
   def default_url_options
     { slug: params[:slug] || @current_organization&.slug }
   end
@@ -23,5 +26,9 @@ class ApplicationController < ActionController::Base
 
   rescue ActiveRecord::RecordNotFound
     redirect_to root_path, alert: "Practice not found."
+  end
+
+  def user_for_paper_trail
+    Current.user&.id
   end
 end

@@ -4,6 +4,8 @@ class MedicationsController < ApplicationController
   def create
     @medication = @patient.medications.new(medication_params)
 
+    @medication.prescribed_by = Current.user
+
     if @medication.save
       redirect_to patient_path(slug: @current_organization.slug, id: @patient.id, tab: "clinical"), notice: "Medication added."
     else

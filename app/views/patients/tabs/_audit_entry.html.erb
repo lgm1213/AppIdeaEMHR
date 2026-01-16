@@ -1,0 +1,77 @@
+<% 
+   # Calculate changes once, inside this isolated scope
+   changes = audit_changes_for(version) 
+   user = User.find_by(id: version.whodunnit)
+%>
+
+<li class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+  <div class="flex items-center justify-between">
+    <div class="flex flex-col">
+      <p class="text-sm font-medium text-indigo-600 truncate">
+        <%= version.event.humanize %> <%= version.item_type %>
+      </p>
+      <p class="text-xs text-gray-500">
+        by <span class="font-bold"><%= user&.full_name || "Unknown User" %></span>
+      </p>
+    </div>
+    <div class="flex flex-col items-end">
+      <p class="text-sm text-gray-500">
+        <%= version.created_at.in_time_zone.strftime("%b %d, %Y") %>
+      </p>
+      <p class="text-xs text-gray-400">
+        <%= version.created_at.in_time_zone.strftime("%l:%M %p") %>
+      </p>
+    </div>
+  </div>
+  
+  <div class="mt-2 text-xs font-mono text-gray-600 bg-gray-50 p-2 rounded border border-gray-100 overflow-x-auto">
+    <% if changes.empty? %>
+       <span class="text-gray-400">
+         <%= version.event == 'create' ? "Created (No specific details recorded)" : "No changes detected" %>
+       </span>
+    <% else %>
+      <% changes.each do |key, val| %>
+        <% 
+           # Humanize the Values
+           if key.end_with?("user_id", "provider_id", "prescribed_by_id", "uploader_id")
+             
+             # Smart Resolver: Handles both direct User links AND Provider links
+             resolver = ->(id) {
+               return nil if id.blank?
+               
+               if key == "provider_id"
+                 # Special Case: Look up Provider first, then get the User
+                 Provider.find_by(id: id)&.user&.full_name || "Unknown Provider"
+               else
+                 # Standard Case: Look up User directly
+                 User.find_by(id: id)&.full_name || "Unknown User"
+               end
+             }
+             
+             if val.is_a?(Array) # Update: [old, new]
+                val = [resolver.call(val[0]), resolver.call(val[1])]
+             else # Create: new
+                val = resolver.call(val)
+             end
+             
+             # Humanize the Key
+             key = key.gsub("_id", "").humanize
+           end
+
+           # Standardize Val
+           old_val, new_val = val.is_a?(Array) ? val : [nil, val] 
+        %>
+        
+        <div class="mb-1">
+          <span class="font-bold text-gray-700"><%= key.humanize %>:</span> 
+          
+          <% if old_val.present? %>
+            <span class="text-red-600 line-through"><%= old_val %></span> &rarr;
+          <% end %>
+          
+          <span class="text-green-600 font-semibold"><%= new_val %></span>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</li>
