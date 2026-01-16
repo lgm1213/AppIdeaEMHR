@@ -1,183 +1,165 @@
 <% content_for :title, "Dashboard" %>
 
-<div class="space-y-8">
-  <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-3xl font-bold tracking-tight text-gray-900">
+<div class="space-y-6">
+  
+  <div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+      <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
         <%= Current.user.is_provider? ? "My Workspace" : "Practice Overview" %>
-      </h1>
+      </h2>
       <p class="mt-1 text-sm text-gray-500">
-        Welcome back, <%= Current.user.first_name %>. 
+        Good <%= Time.now.hour < 12 ? "Morning" : "Afternoon" %>, <%= Current.user.first_name %>. 
         Here is what's happening at <%= @current_organization.name %>.
       </p>
     </div>
     
-    <div class="flex gap-3">
+    <div class="mt-4 flex gap-3 md:ml-4 md:mt-0">
       <% if Current.user.is_provider? %>
-        <%= link_to "Go to Schedule", 
-          appointments_path(slug: @current_organization.slug), 
-          class: "rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" 
-        %>
-      <% else %>
-        <%= link_to "New Patient", 
-          new_patient_path(slug: @current_organization.slug), 
-          class: "rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" 
+        <%= link_to "Go to Calendar", appointments_path(slug: @current_organization.slug), 
+          class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" 
         %>
       <% end %>
+      
+      <%= link_to "New Patient", new_patient_path(slug: @current_organization.slug), 
+        class: %w[
+          inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 
+          text-sm font-semibold text-white shadow-sm 
+          hover:bg-indigo-700 
+          focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
+        ].join(" ")
+      %>
     </div>
   </div>
 
   <% if Current.user.is_provider? %>
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
       
-      <div class="bg-white shadow sm:rounded-lg border border-gray-200">
-        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-          <h3 class="text-base font-semibold leading-6 text-gray-900">Appointments Today</h3>
-        </div>
-        <ul class="divide-y divide-gray-200">
-          <% @todays_appointments.each do |appt| %>
-            <li class="px-4 py-4 flex justify-between items-center hover:bg-gray-50">
-              <div>
-                <span class="block font-bold text-gray-900"><%= appt.start_time.strftime("%l:%M %p") %></span>
-                <span class="text-sm text-gray-600"><%= appt.patient.full_name %></span>
-                <span class="block text-xs text-gray-400"><%= appt.reason %></span>
-              </div>
-              
-              <% if appt.completed? %>
-                <span class="text-xs text-green-600 font-medium">✓ Completed</span>
-              <% else %>
-                <%= link_to "Start Visit", 
-                  new_patient_encounter_path(slug: @current_organization.slug, patient_id: appt.patient_id, appointment_id: appt.id), 
-                  class: "text-xs bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-md font-medium hover:bg-indigo-100" 
-                %>
+      <div class="lg:col-span-2 space-y-6">
+        <div class="overflow-hidden rounded-lg bg-white shadow border border-gray-200">
+          <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-base font-semibold leading-6 text-gray-900">Today's Schedule</h3>
+            <span class="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-600/20">
+              <%= @todays_appointments&.count || 0 %> Visits
+            </span>
+          </div>
+          
+          <ul role="list" class="divide-y divide-gray-200">
+            <% if @todays_appointments.present? %>
+              <% @todays_appointments.each do |appt| %>
+                <li class="px-4 py-4 hover:bg-gray-50 transition sm:px-6">
+                  <div class="flex items-center justify-between gap-x-6">
+                    <div class="flex min-w-0 gap-x-4">
+                      <div class="flex flex-col items-center justify-center rounded-md bg-gray-100 px-2 py-1 w-16 text-center border border-gray-200">
+                        <span class="text-xs font-bold text-gray-500 uppercase"><%= appt.start_time.strftime("%p") %></span>
+                        <span class="text-lg font-bold text-gray-900"><%= appt.start_time.strftime("%l:%M") %></span>
+                      </div>
+                      
+                      <div class="min-w-0 flex-auto">
+                        <p class="text-sm font-semibold leading-6 text-gray-900">
+                          <%= link_to appt.patient.full_name, patient_path(slug: @current_organization.slug, id: appt.patient.id), class: "hover:underline" %>
+                        </p>
+                        <p class="mt-1 truncate text-xs leading-5 text-gray-500">
+                          <%= appt.reason.presence || "Routine Checkup" %>
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div class="flex flex-none items-center gap-x-4">
+                      <%= link_to "Start Visit", new_patient_encounter_path(slug: @current_organization.slug, patient_id: appt.patient.id), 
+                          class: "rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" 
+                      %>
+                    </div>
+                  </div>
+                </li>
               <% end %>
-            </li>
-          <% end %>
-          <% if @todays_appointments.empty? %>
-            <li class="px-4 py-8 text-center text-gray-500 italic">No appointments scheduled for today.</li>
-          <% end %>
-        </ul>
+            <% else %>
+              <li class="px-6 py-12 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-semibold text-gray-900">No appointments today</h3>
+                <div class="mt-6">
+                  <%= link_to "Schedule Appointment", new_appointment_path(slug: @current_organization.slug), 
+                    class: "inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" 
+                  %>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        </div>
       </div>
 
-      <div class="bg-white shadow sm:rounded-lg border border-gray-200">
-        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-          <h3 class="text-base font-semibold leading-6 text-gray-900">My Recent Notes</h3>
+      <div class="space-y-6">
+        
+        <div class="overflow-hidden rounded-lg bg-white shadow border border-gray-200">
+          <div class="p-4 bg-gray-50 border-b border-gray-200">
+            <h3 class="text-sm font-semibold leading-6 text-gray-900">Recently Updated Patients</h3>
+          </div>
+          <ul role="list" class="divide-y divide-gray-200">
+            <% if @recent_patients.present? %>
+              <% @recent_patients.each do |patient| %>
+                <li class="px-4 py-3 hover:bg-gray-50">
+                  <div class="flex items-center justify-between">
+                    <div class="min-w-0">
+                      <p class="text-sm font-medium text-gray-900">
+                        <%= link_to patient.full_name, patient_path(slug: @current_organization.slug, id: patient.id), 
+                          class: "hover:text-indigo-600" 
+                        %>
+                      </p>
+                      <p class="truncate text-xs text-gray-500">
+                        Updated <%= time_ago_in_words(patient.updated_at) %> ago
+                      </p>
+                    </div>
+                  </div>
+                </li>
+              <% end %>
+            <% else %>
+              <li class="px-4 py-6 text-center text-xs text-gray-500 italic">No recent activity.</li>
+            <% end %>
+          </ul>
         </div>
-        <ul class="divide-y divide-gray-200">
-          <% @my_recent_notes.each do |note| %>
-            <li class="px-4 py-4 hover:bg-gray-50">
-              <div class="flex justify-between">
-                <span class="font-medium text-gray-900"><%= note.patient.full_name %></span>
-                <span class="text-xs text-gray-500"><%= time_ago_in_words(note.created_at) %> ago</span>
-              </div>
-              <p class="text-xs text-gray-500 mt-1 truncate"><%= note.assessment || "No assessment entered" %></p>
-            </li>
-          <% end %>
-        </ul>
+
+        <div class="overflow-hidden rounded-lg bg-white shadow border border-gray-200">
+          <div class="p-4 bg-yellow-50 border-b border-yellow-200 flex justify-between items-center">
+            <h3 class="text-sm font-semibold leading-6 text-yellow-800">Pending Lab Results</h3>
+            <% if @pending_labs&.any? %>
+               <span class="flex h-2 w-2 relative">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
+                </span>
+            <% end %>
+          </div>
+          <ul role="list" class="divide-y divide-gray-200">
+            <% if @pending_labs&.any? %>
+              <% @pending_labs.each do |lab| %>
+                <li class="px-4 py-3 hover:bg-gray-50">
+                  <%= link_to patient_path(slug: @current_organization.slug, id: lab.patient.id, tab: 'clinical'), class: "block" do %>
+                    <div class="flex items-center justify-between">
+                      <p class="text-sm font-medium text-gray-900"><%= lab.test_type %></p>
+                      <p class="text-xs text-gray-500"><%= lab.date.strftime("%m/%d") %></p>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Patient: <span class="font-medium"><%= lab.patient.last_name %></span></p>
+                  <% end %>
+                </li>
+              <% end %>
+            <% else %>
+              <li class="px-4 py-8 text-center text-xs text-gray-500 italic">No pending results.</li>
+            <% end %>
+          </ul>
+        </div>
+
       </div>
     </div>
 
   <% else %>
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-8">
       <div class="overflow-hidden rounded-lg bg-white shadow ring-1 ring-black ring-opacity-5">
         <div class="px-4 py-5 sm:p-6">
           <dt class="truncate text-sm font-medium text-gray-500">Total Patients</dt>
           <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900"><%= @patient_count %></dd>
         </div>
       </div>
-
-      <div class="overflow-hidden rounded-lg bg-white shadow ring-1 ring-black ring-opacity-5">
-        <div class="px-4 py-5 sm:p-6">
-          <dt class="truncate text-sm font-medium text-gray-500">Active Providers</dt>
-          <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900"><%= @provider_count %></dd>
-        </div>
       </div>
-      
-      <div class="overflow-hidden rounded-lg bg-white shadow ring-1 ring-black ring-opacity-5">
-        <div class="px-4 py-5 sm:p-6">
-          <dt class="truncate text-sm font-medium text-gray-500">Clinical Notes Logged</dt>
-          <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
-            <%= @total_notes %>
-          </dd>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
-      
-      <div class="lg:col-span-2">
-        <div class="overflow-hidden rounded-lg bg-white shadow ring-1 ring-black ring-opacity-5">
-          <div class="border-b border-gray-200 px-4 py-5 sm:px-6 flex justify-between items-center">
-            <h3 class="text-base font-semibold leading-6 text-gray-900">Recent Clinical Notes</h3>
-            <%= link_to "View All Patients", patients_path(slug: @current_organization.slug), 
-              class: "text-sm font-medium text-indigo-600 hover:text-indigo-500" 
-            %>
-          </div>
-          <ul role="list" class="divide-y divide-gray-200">
-            <% @recent_activity.each do |encounter| %>
-              <li class="px-4 py-4 sm:px-6 hover:bg-gray-50 transition">
-                <div class="flex justify-between gap-x-6">
-                  <div class="min-w-0 flex-auto">
-                    <p class="text-sm font-semibold leading-6 text-gray-900">
-                      <%= link_to encounter.patient.full_name, 
-                        patient_encounters_path(slug: @current_organization.slug, patient_id: encounter.patient.id), 
-                        class: "hover:underline" 
-                      %>
-                    </p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">
-                      Seen by <span class="font-medium text-gray-700"><%= encounter.provider&.full_name || "Unknown" %></span>
-                    </p>
-                    <p class="mt-2 text-sm text-gray-600 line-clamp-2">
-                      <span class="font-bold text-gray-500 text-xs uppercase mr-1">Plan:</span>
-                      <%= encounter.plan.truncate(100) %>
-                    </p>
-                  </div>
-                  <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                    <p class="text-sm leading-6 text-gray-900"><%= encounter.visit_date.strftime("%b %d") %></p>
-                    <p class="mt-1 text-xs leading-5 text-gray-500"><%= time_ago_in_words(encounter.created_at) %> ago</p>
-                  </div>
-                </div>
-              </li>
-            <% end %>
-            <% if @recent_activity.empty? %>
-              <li class="px-4 py-10 text-center text-sm text-gray-500 italic">
-                No clinical notes yet.
-              </li>
-            <% end %>
-          </ul>
-        </div>
-      </div>
-
-      <div class="lg:col-span-1">
-        <div class="overflow-hidden rounded-lg bg-white shadow ring-1 ring-black ring-opacity-5">
-          <div class="border-b border-gray-200 px-4 py-5 sm:px-6">
-            <h3 class="text-base font-semibold leading-6 text-gray-900">Newest Patients</h3>
-          </div>
-          <ul role="list" class="divide-y divide-gray-200">
-            <% @new_patients.each do |patient| %>
-              <li class="flex gap-x-4 px-4 py-4 hover:bg-gray-50">
-                <div class="h-10 w-10 flex-none rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-xs">
-                  <%= patient.first_name[0] %><%= patient.last_name[0] %>
-                </div>
-                <div class="min-w-0 flex-auto">
-                  <p class="text-sm font-semibold leading-6 text-gray-900">
-                    <%= link_to patient.full_name, patient_path(patient, slug: @current_organization.slug) %>
-                  </p>
-                  <p class="mt-1 truncate text-xs leading-5 text-gray-500">
-                    DOB: <%= patient.date_of_birth.strftime("%m/%d/%Y") %>
-                  </p>
-                </div>
-              </li>
-            <% end %>
-          </ul>
-          <div class="bg-gray-50 px-4 py-4 sm:px-6">
-            <%= link_to "View Directory", patients_path(slug: @current_organization.slug), 
-              class: "text-sm font-medium text-indigo-600 hover:text-indigo-500" 
-            %>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  <% end %>
+    
+    <% end %>
 </div>

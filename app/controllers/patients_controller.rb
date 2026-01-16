@@ -1,5 +1,5 @@
 class PatientsController < ApplicationController
-  before_action :set_patient, only: %i[ show edit update destroy ]
+  before_action :set_patient, only: %i[ show edit update destroy download_ccda]
 
   # GET /:slug/patients
   def index
@@ -67,6 +67,20 @@ class PatientsController < ApplicationController
       format.html { redirect_to patients_path, status: :see_other, notice: "Patient was successfully destroyed." }
       format.json { head :no_content }
     end
+  end
+
+  def download_ccda
+    # Generates XML
+    xml_content = CcdaGenerator.new(@patient).call
+
+    # Creates a professional filename
+    filename = "CCDA_#{@patient.last_name}_#{@patient.first_name}_#{Date.today}.xml"
+
+    # Sends to browser
+    send_data xml_content,
+              filename: filename,
+              type: "application/xml",
+              disposition: "attachment"
   end
 
   private

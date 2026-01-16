@@ -4,15 +4,16 @@ class CcdaGenerator
   end
 
   def call
-    builder = Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
+    Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
       xml.ClinicalDocument("xmlns" => "urn:hl7-org:v3") do
-        # CCDA Header Info
+        # --- HEADER ---
         xml.realmCode(code: "US")
         xml.typeId(root: "2.16.840.1.113883.1.3", extension: "POCD_HD000040")
         xml.title "Continuity of Care Document (CCD)"
         xml.effectiveTime(value: Time.now.strftime("%Y%m%d%H%M%S"))
+        xml.confidentialityCode(code: "N", codeSystem: "2.16.840.1.113883.5.25")
 
-        # Patient Info
+        # PATIENT INFO
         xml.recordTarget do
           xml.patientRole do
             xml.id(root: "2.16.840.1.113883.4.1", extension: @patient.id)
@@ -21,32 +22,28 @@ class CcdaGenerator
                 xml.given @patient.first_name
                 xml.family @patient.last_name
               end
-              xml.administrativeGenderCode(code: gender_code(@patient.gender), codeSystem: "2.16.840.1.113883.5.1")
+              xml.administrativeGenderCode(code: gender_code, codeSystem: "2.16.840.1.113883.5.1")
               xml.birthTime(value: @patient.date_of_birth.strftime("%Y%m%d"))
+              xml.telecom(value: "tel:#{@patient.phone}")
             end
           end
         end
 
-        # CCDA Body Info
+        # --- BODY ---
         xml.component do
           xml.structuredBody do
-            # Section: Allergies
+            # 1. ALLERGIES
             if @patient.allergies.any?
               xml.component do
                 xml.section do
-                  xml.title "Allergies, Adverse Reactions, Alerts"
-                  xml.text do
+                  xml.title "Allergies"
+                  # Use tag!("text")
+                  xml.tag!("text") do
                     xml.table do
-                      xml.thead do
-                        xml.tr { xml.th "Substance"; xml.th "Reaction"; xml.th "Status" }
-                      end
+                      xml.thead { xml.tr { xml.th "Substance"; xml.th "Reaction"; xml.th "Severity" } }
                       xml.tbody do
                         @patient.allergies.each do |alg|
-                          xml.tr do
-                            xml.td alg.name
-                            xml.td alg.reaction
-                            xml.td alg.status
-                          end
+                          xml.tr { xml.td alg.name; xml.td alg.reaction; xml.td alg.severity }
                         end
                       end
                     end
@@ -55,19 +52,94 @@ class CcdaGenerator
               end
             end
 
-            # Future sections: Medications, Problems, etc.
+            # 2. MEDICATIONS
+            if @patient.medications.respond_to?(:active) && @patient.medications.active.any?
+              xml.component do
+                xml.section do
+                  xml.title "Active Medications"
+                  # Use tag!("text")
+                  xml.tag!("text") do
+                    xml.table do
+                      xml.thead { xml.tr { xml.th "Medication"; xml.th "Dosage"; xml.th "Frequency" } }
+                      xml.tbody do
+                        @patient.medications.active.each do |med|
+                          xml.tr { xml.td med.name; xml.td med.dosage; xml.td med.frequency }
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+
+            # 3. PROBLEM LIST
+            if @patient.conditions.respond_to?(:active) && @patient.conditions.active.any?
+              xml.component do
+                xml.section do
+                  xml.title "Problem List"
+                  # Use tag!("text")
+                  xml.tag!("text") do
+                    xml.table do
+                      xml.thead { xml.tr { xml.th "Condition"; xml.th "Code"; xml.th "Onset" } }
+                      xml.tbody do
+                        @patient.conditions.active.each do |cond|
+                          xml.tr { xml.td cond.name; xml.td "#{cond.code_system}: #{cond.code}"; xml.td cond.onset_date }
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+
+            # 4. LAB RESULTS
+            if @patient.labs.any?
+              xml.component do
+                xml.section do
+                  xml.title "Lab Results"
+                  # Use tag!("text")
+                  xml.tag!("text") do
+                    xml.table do
+                      xml.thead { xml.tr { xml.th "Test"; xml.th "Result"; xml.th "Date" } }
+                      xml.tbody do
+                        @patient.labs.each do |lab|
+                          xml.tr { xml.td lab.test_type; xml.td lab.result; xml.td lab.date }
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+
+            # 5. ENCOUNTERS
+            if @patient.encounters.any?
+              xml.component do
+                xml.section do
+                  xml.title "Recent Encounters"
+                  # Use tag!("text")
+                  xml.tag!("text") do
+                    @patient.encounters.order(visit_date: :desc).limit(5).each do |enc|
+                      xml.paragraph do
+                        xml.content "Date: #{enc.visit_date} | Provider: #{enc.provider&.full_name}"
+                        xml.br
+                        xml.content "Assessment: #{enc.assessment}"
+                      end
+                    end
+                  end
+                end
+              end
+            end
           end
         end
       end
-    end
-
-    builder.to_xml
+    end.to_xml
   end
 
   private
 
-  def gender_code(gender)
-    case gender.downcase
+  def gender_code
+    case @patient.gender&.downcase
     when "male" then "M"
     when "female" then "F"
     else "UN"

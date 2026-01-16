@@ -33,6 +33,10 @@ Rails.application.routes.draw do
 
     # Clinical Records
     resources :patients do
+      # CCDA XML Export
+      member do
+        get :download_ccda
+      end
       resources :encounters
       resources :documents
       # Discrete Clinical Data
