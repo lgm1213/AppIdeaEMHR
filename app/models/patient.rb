@@ -15,6 +15,10 @@ class Patient < ApplicationRecord
   has_many :dmes, dependent: :destroy
   has_many :labs, dependent: :destroy
 
+  # CareTeams
+  has_many :care_team_members, dependent: :destroy
+  has_many :providers, through: :care_team_members, source: :user
+
   validates :first_name, :last_name, :date_of_birth, presence: true
 
   def full_name

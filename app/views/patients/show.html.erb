@@ -281,6 +281,7 @@
 
       </div>
 
+      <%# --- Upcoming Visits --- %>
       <div class="space-y-6">
         <div class="bg-white shadow sm:rounded-lg border border-gray-200">
           <div class="border-b border-gray-200 px-4 py-4 sm:px-6">
@@ -312,13 +313,72 @@
             <% end %>
           </ul>
         </div>
+
+        <%# --- Care Team --- %>
+        <div class="bg-white shadow sm:rounded-lg border border-gray-200">
+          <div class="border-b border-gray-200 px-4 py-4 sm:px-6 flex justify-between items-center">
+            <h3 class="text-base font-semibold leading-6 text-gray-900">Care Team</h3>
+          </div>
+          
+          <ul class="divide-y divide-gray-200">
+            <% @patient.care_team_members.includes(:user).each do |member| %>
+              <li class="px-4 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200">
+                    <%= member.user.first_name[0] %><%= member.user.last_name[0] %>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-gray-900"><%= member.user.full_name %></p>
+                    <p class="text-xs text-gray-500"><%= member.role %></p>
+                  </div>
+                </div>
+                
+                <%= button_to "Remove", 
+                    patient_care_team_member_path(slug: @current_organization.slug, patient_id: @patient.id, id: member.id), 
+                    method: :delete, 
+                    class: "text-xs text-red-600 hover:text-red-800 font-medium" 
+                %>
+              </li>
+            <% end %>
+            
+            <% if @patient.care_team_members.empty? %>
+              <li class="px-4 py-6 text-center text-sm text-gray-500 italic">No care team assigned.</li>
+            <% end %>
+          </ul>
+
+          <div class="p-4 bg-gray-50 border-t border-gray-200">
+            <%= form_with model: CareTeamMember.new, url: patient_care_team_members_path(slug: @current_organization.slug, patient_id: @patient.id) do |f| %>
+                <div class="flex flex-col gap-2">
+                  <%= f.collection_select :user_id, 
+                    User.where(organization: @current_organization), 
+                    :id, 
+                    :full_name, 
+                    { prompt: "Select Provider..." }, 
+                    { class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" } 
+                  %>
+                  
+                  <div class="flex gap-2">
+                    <%= f.text_field :role, 
+                      placeholder: "Role (e.g. PCP)", 
+                      class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" 
+                    %>
+                    <%= f.submit "Assign", 
+                      class: "rounded bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" 
+                    %>
+                  </div>
+                </div>
+            <% end %>
+          </div>
+        </div>
       </div>
+
+      
 
     </div>
 
   <% elsif active_tab == 'clinical' %>
     
-    <%# --- TAB 2: CLINICAL DATA --- %>
+    <%# --- TAB: CLINICAL DATA --- %>
     
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
       

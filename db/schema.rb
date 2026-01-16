@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_15_234339) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_16_141919) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -67,6 +67,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_234339) do
     t.index ["organization_id"], name: "index_appointments_on_organization_id"
     t.index ["patient_id"], name: "index_appointments_on_patient_id"
     t.index ["provider_id"], name: "index_appointments_on_provider_id"
+  end
+
+  create_table "care_team_members", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.uuid "patient_id", null: false
+    t.string "role"
+    t.string "status"
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["patient_id"], name: "index_care_team_members_on_patient_id"
+    t.index ["user_id"], name: "index_care_team_members_on_user_id"
   end
 
   create_table "conditions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -220,6 +231,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_234339) do
   add_foreign_key "appointments", "organizations"
   add_foreign_key "appointments", "patients"
   add_foreign_key "appointments", "providers"
+  add_foreign_key "care_team_members", "patients"
+  add_foreign_key "care_team_members", "users"
   add_foreign_key "conditions", "patients"
   add_foreign_key "dmes", "patients"
   add_foreign_key "documents", "patients"

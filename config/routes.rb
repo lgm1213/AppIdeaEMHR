@@ -41,6 +41,8 @@ Rails.application.routes.draw do
       resources :medications, only: [ :create, :destroy ]
       resources :dmes, only: [ :create, :destroy ]
       resources :labs, only: [ :create, :destroy ]
+      # Care Team Management
+      resources :care_team_members, only: [ :create, :destroy ]
     end
   end
 
