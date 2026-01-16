@@ -12,6 +12,8 @@ class Patient < ApplicationRecord
   has_many :allergies, dependent: :destroy
   has_many :conditions, dependent: :destroy
   has_many :medications, dependent: :destroy
+  has_many :dmes, dependent: :destroy
+  has_many :labs, dependent: :destroy
 
   validates :first_name, :last_name, :date_of_birth, presence: true
 

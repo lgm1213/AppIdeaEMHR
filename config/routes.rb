@@ -39,6 +39,8 @@ Rails.application.routes.draw do
       resources :allergies, only: [ :create, :destroy ]
       resources :conditions, only: [ :create, :destroy ]
       resources :medications, only: [ :create, :destroy ]
+      resources :dmes, only: [ :create, :destroy ]
+      resources :labs, only: [ :create, :destroy ]
     end
   end
 

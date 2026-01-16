@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_15_224549) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_15_234339) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -81,6 +81,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_224549) do
     t.index ["patient_id"], name: "index_conditions_on_patient_id"
   end
 
+  create_table "dmes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.uuid "patient_id", null: false
+    t.date "prescribed_date"
+    t.string "status"
+    t.datetime "updated_at", null: false
+    t.index ["patient_id"], name: "index_dmes_on_patient_id"
+  end
+
   create_table "documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "last_accessed_at"
@@ -120,6 +130,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_224549) do
     t.datetime "updated_at", null: false
     t.string "zip_code"
     t.index ["organization_id"], name: "index_facilities_on_organization_id"
+  end
+
+  create_table "labs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "date"
+    t.uuid "patient_id", null: false
+    t.string "result"
+    t.string "status"
+    t.string "test_type"
+    t.datetime "updated_at", null: false
+    t.index ["patient_id"], name: "index_labs_on_patient_id"
   end
 
   create_table "medications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -200,6 +221,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_224549) do
   add_foreign_key "appointments", "patients"
   add_foreign_key "appointments", "providers"
   add_foreign_key "conditions", "patients"
+  add_foreign_key "dmes", "patients"
   add_foreign_key "documents", "patients"
   add_foreign_key "documents", "users", column: "uploader_id"
   add_foreign_key "encounters", "appointments"
@@ -207,6 +229,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_224549) do
   add_foreign_key "encounters", "patients"
   add_foreign_key "encounters", "providers"
   add_foreign_key "facilities", "organizations"
+  add_foreign_key "labs", "patients"
   add_foreign_key "medications", "patients"
   add_foreign_key "medications", "users", column: "prescribed_by_id"
   add_foreign_key "patients", "organizations"
