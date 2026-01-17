@@ -8,6 +8,14 @@ class User < ApplicationRecord
   has_one :provider, dependent: :destroy
   accepts_nested_attributes_for :provider
 
+  # Messaging Associations
+  has_many :sent_messages, class_name: "Message", foreign_key: "sender_id", dependent: :destroy
+  has_many :received_messages, class_name: "Message", foreign_key: "recipient_id", dependent: :destroy
+
+  def unread_messages_count
+    received_messages.unread.count
+  end
+
   # Enum for roles
   enum :role, [ :staff, :provider, :admin, :superadmin ]
 

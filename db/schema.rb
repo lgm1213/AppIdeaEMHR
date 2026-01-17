@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_16_143618) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_16_214954) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -167,6 +167,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_16_143618) do
     t.index ["prescribed_by_id"], name: "index_medications_on_prescribed_by_id"
   end
 
+  create_table "messages", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "body"
+    t.string "category", default: "General"
+    t.datetime "created_at", null: false
+    t.uuid "organization_id", null: false
+    t.uuid "patient_id"
+    t.datetime "read_at"
+    t.uuid "recipient_id", null: false
+    t.uuid "sender_id", null: false
+    t.string "subject"
+    t.datetime "updated_at", null: false
+    t.index ["organization_id"], name: "index_messages_on_organization_id"
+    t.index ["patient_id"], name: "index_messages_on_patient_id"
+    t.index ["recipient_id"], name: "index_messages_on_recipient_id"
+    t.index ["sender_id"], name: "index_messages_on_sender_id"
+  end
+
   create_table "organizations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name"
@@ -258,6 +275,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_16_143618) do
   add_foreign_key "labs", "patients"
   add_foreign_key "medications", "patients"
   add_foreign_key "medications", "users", column: "prescribed_by_id"
+  add_foreign_key "messages", "organizations"
+  add_foreign_key "messages", "patients"
+  add_foreign_key "messages", "users", column: "recipient_id"
+  add_foreign_key "messages", "users", column: "sender_id"
   add_foreign_key "patients", "organizations"
   add_foreign_key "providers", "organizations"
   add_foreign_key "providers", "users"

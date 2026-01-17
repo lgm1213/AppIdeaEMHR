@@ -1,0 +1,98 @@
+<turbo-frame id="message_preview" class="flex flex-col h-full bg-white">
+  
+  <div class="px-6 py-5 border-b border-gray-200">
+    <h2 class="text-xl font-bold text-gray-900">
+      <%= params[:reply_to_id] ? "Reply to Message" : "New Message" %>
+    </h2>
+  </div>
+
+  <div class="flex-1 overflow-y-auto p-6">
+    <%= form_with model: @message, url: messages_path(slug: @current_organization.slug), class: "space-y-6" do |f| %>
+      
+      <% if @patient %>
+        <div class="bg-blue-50 p-3 rounded-md border border-blue-100 flex items-center gap-3 text-sm">
+          <span class="font-bold text-blue-800">Regarding:</span>
+          <span class="text-blue-900"><%= @patient.full_name %></span>
+          <%= f.hidden_field :patient_id %>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :recipient_id, "To", class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-2">
+          <%= f.collection_select :recipient_id, 
+              @recipients, 
+              :id, 
+              :full_name, 
+              { prompt: "Select Recipient..." }, 
+              { class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6" } 
+          %>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <%= f.label :category, class: "block text-sm font-medium leading-6 text-gray-900" %>
+          <div class="mt-2">
+            <%= f.select :category, ["General", "Rx Renewal", "Lab Review", "Billing Question"], {}, class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+          </div>
+        </div>
+        
+        <div>
+          <%= f.label :subject, class: "block text-sm font-medium leading-6 text-gray-900" %>
+          <div class="mt-2">
+            <%= f.text_field :subject, class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <%= f.label :body, "Message", class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <div class="mt-2">
+          <%= f.text_area :body, rows: 6, class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 rounded-md border border-gray-200 p-4 space-y-4">
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-900">Attach Files (Upload)</label>
+          <div class="mt-2">
+            <%= f.file_field :attachments, multiple: true, class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" %>
+          </div>
+        </div>
+
+        <% if @patient_documents&.any? %>
+          <div class="border-t border-gray-200 pt-4">
+            <label class="block text-sm font-medium text-gray-900 mb-2">Or Attach from Patient Chart:</label>
+            <div class="max-h-40 overflow-y-auto space-y-2 bg-white p-2 rounded border border-gray-300">
+              <%= f.collection_check_boxes :patient_document_ids, @patient_documents, :id, :name do |b| %>
+                <div class="flex items-start">
+                  <div class="flex h-6 items-center">
+                    <%= b.check_box(class: "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600") %>
+                  </div>
+                  <div class="ml-3 text-sm leading-6">
+                    <%= b.label(class: "font-medium text-gray-900") do %>
+                      <%= b.text %> 
+                      <span class="text-gray-500 font-normal ml-1">- <%= b.object.created_at.strftime("%b %d") %></span>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+      </div>
+      <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+        <%= link_to "Cancel", messages_path(slug: @current_organization.slug), 
+            class: "text-sm font-semibold leading-6 text-gray-500 hover:text-gray-700",
+            data: { turbo_frame: "_top" } 
+        %>
+        
+        <%= f.submit "Send Message", class: "rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+
+</turbo-frame>

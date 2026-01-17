@@ -48,6 +48,13 @@ Rails.application.routes.draw do
       # Care Team Management
       resources :care_team_members, only: [ :create, :destroy ]
     end
+
+    # Messaging System
+    resources :messages, only: [ :index, :show, :new, :create ] do
+      collection do
+        get :sent
+      end
+    end
   end
 
   # System Health Check
