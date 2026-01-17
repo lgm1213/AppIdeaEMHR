@@ -13,7 +13,7 @@ class User < ApplicationRecord
   has_many :received_messages, class_name: "Message", foreign_key: "recipient_id", dependent: :destroy
 
   def unread_messages_count
-    received_messages.unread.count
+    received_messages.where(read_at: nil).count
   end
 
   # Enum for roles

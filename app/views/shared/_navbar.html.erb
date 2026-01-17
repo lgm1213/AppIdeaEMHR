@@ -55,13 +55,22 @@
               class: %w[
                 inline-flex items-center px-1 pt-1 
                 border-b-2 text-sm font-medium 
-                #{
-                  current_page?(practice_dashboard_path(slug: @current_organization.slug)) ? 
-                  'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 
-                  hover:border-gray-300 hover:text-gray-700'
-                  }
+                #{current_page?(practice_dashboard_path(slug: @current_organization.slug)) ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}
               ].join(" ")
             %>
+
+            <%= link_to messages_path(slug: @current_organization.slug), 
+              class: "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium #{request.path.include?('/messages') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}" do %>
+              
+              Inbox
+              
+              <% unread_count = Current.user.unread_messages_count %>
+              <% if unread_count > 0 %>
+                <span class="ml-2 inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-[10px] font-bold text-white leading-none">
+                  <%= unread_count > 99 ? "99+" : unread_count %>
+                </span>
+              <% end %>
+            <% end %>
 
             <%= link_to "Schedule", appointments_path(slug: @current_organization.slug), 
               class: %w[
