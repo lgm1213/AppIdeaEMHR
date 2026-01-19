@@ -1,34 +1,67 @@
-<div id="<%= dom_id encounter %>" class="w-full sm:w-auto my-5 space-y-5">
-  <div>
-    <strong class="block font-medium mb-1">Patient:</strong>
-    <%= encounter.patient_id %>
+<div id="<%= dom_id encounter %>" class="space-y-6 text-gray-900">
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+    <div>
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Patient</p>
+      <p class="text-lg font-medium text-indigo-700">
+        <%= link_to encounter.patient.full_name, patient_path(slug: @current_organization.slug, id: encounter.patient.id), class: "hover:underline" %>
+      </p>
+      <p class="text-xs text-gray-500">DOB: <%= encounter.patient.date_of_birth&.strftime("%m/%d/%Y") %></p>
+    </div>
+
+    <div>
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Provider</p>
+      <p class="text-lg font-medium">Dr. <%= encounter.provider.full_name %></p>
+      <p class="text-xs text-gray-500"><%= encounter.provider.specialty || "General Practice" %></p>
+    </div>
   </div>
-  <div>
-    <strong class="block font-medium mb-1">Provider:</strong>
-    <%= encounter.provider_id %>
+
+  <div class="space-y-6 pt-4">
+    
+    <div>
+      <h3 class="text-sm font-bold text-indigo-900 border-b border-indigo-100 pb-1 mb-2">Subjective</h3>
+      <div class="prose prose-sm text-gray-800">
+        <%= simple_format(encounter.subjective) %> 
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-sm font-bold text-indigo-900 border-b border-indigo-100 pb-1 mb-2">Objective</h3>
+      <div class="prose prose-sm text-gray-800">
+        <%= simple_format(encounter.objective) %>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-sm font-bold text-indigo-900 border-b border-indigo-100 pb-1 mb-2">Assessment</h3>
+      <div class="prose prose-sm text-gray-800">
+        <%= simple_format(encounter.assessment) %>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-sm font-bold text-indigo-900 border-b border-indigo-100 pb-1 mb-2">Plan</h3>
+      <div class="prose prose-sm text-gray-800">
+        <%= simple_format(encounter.plan) %>
+      </div>
+    </div>
   </div>
-  <div>
-    <strong class="block font-medium mb-1">Organization:</strong>
-    <%= encounter.organization_id %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Visit date:</strong>
-    <%= encounter.visit_date %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Subjective:</strong>
-    <%= encounter.subjective %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Objective:</strong>
-    <%= encounter.objective %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Assessment:</strong>
-    <%= encounter.assessment %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Plan:</strong>
-    <%= encounter.plan %>
-  </div>
+
+  <% if encounter.procedures.any? %>
+    <div class="mt-8 pt-6 border-t border-gray-100">
+      <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Procedures & Billing</h3>
+      <ul class="bg-gray-50 rounded-md border border-gray-200 divide-y divide-gray-200">
+        <% encounter.encounter_procedures.each do |line| %>
+          <li class="px-4 py-3 flex justify-between text-sm">
+            <div>
+              <span class="font-mono font-bold text-indigo-600"><%= line.procedure.code %></span>
+              <span class="text-gray-700 ml-2"><%= line.procedure.name %></span>
+            </div>
+            <span class="font-medium text-gray-900"><%= number_to_currency(line.charge_amount) %></span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
 </div>

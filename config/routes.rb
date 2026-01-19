@@ -31,22 +31,36 @@ Rails.application.routes.draw do
     # Schedule
     resources :appointments
 
-    # Clinical Records
     resources :patients do
       # CCDA XML Export
       member do
         get :download_ccda
       end
-      resources :encounters
+
+      # Encounters (Notes)
+      resources :encounters, only: [ :new, :create, :index ]
+
       resources :documents
+
       # Discrete Clinical Data
       resources :allergies, only: [ :create, :destroy ]
       resources :conditions, only: [ :create, :destroy ]
-      resources :medications, only: [ :create, :destroy ]
+      resources :medications do
+        member do
+          get :print
+        end
+      end
       resources :dmes, only: [ :create, :destroy ]
       resources :labs, only: [ :create, :destroy ]
-      # Care Team Management
       resources :care_team_members, only: [ :create, :destroy ]
+    end
+
+    # Superbill / Billing
+    resources :encounters, only: [ :show, :edit, :update, :destroy ] do
+      member do
+        get :superbill
+        get :hcfa # CMS-1500 Form
+      end
     end
 
     # Messaging System

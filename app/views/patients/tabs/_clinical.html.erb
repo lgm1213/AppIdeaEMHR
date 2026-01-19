@@ -1,0 +1,248 @@
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2 mt-4">
+
+  <div class="space-y-6">
+    
+    <div class="bg-white shadow sm:rounded-lg border border-gray-200 overflow-hidden">
+      <div class="px-4 py-3 bg-red-50 border-b border-red-100 flex justify-between items-center">
+        <h3 class="text-sm font-bold text-red-800">Allergies</h3>
+      </div>
+      
+      <ul class="divide-y divide-gray-100 max-h-60 overflow-y-auto">
+        <% @patient.allergies.each do |allergy| %>
+          <li class="px-4 py-3 text-sm flex justify-between group">
+            <div>
+              <span class="font-medium text-gray-900"><%= allergy.name %></span>
+              <span class="text-red-600 text-xs ml-2"><%= allergy.reaction %></span>
+            </div>
+            <%= button_to "×", patient_allergy_path(slug: @current_organization.slug, patient_id: @patient.id, id: allergy.id), 
+                method: :delete, 
+                class: "text-gray-400 hover:text-red-600 font-bold opacity-0 group-hover:opacity-100 transition" 
+            %>
+          </li>
+        <% end %>
+        <% if @patient.allergies.empty? %>
+          <li class="px-4 py-3 text-sm text-gray-500 italic">No known allergies (NKDA)</li>
+        <% end %>
+      </ul>
+
+      <div class="bg-gray-50 p-3 border-t border-gray-200">
+        <%= form_with(model: [ @patient, Allergy.new ], url: patient_allergies_path(slug: @current_organization.slug, patient_id: @patient.id), class: "flex gap-2") do |f| %>
+          <%= f.text_field :name, placeholder: "Allergen...", class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+          <%= f.text_field :reaction, placeholder: "Reaction...", class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+          <%= f.submit "Add", class: "rounded bg-white px-3 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="bg-white shadow sm:rounded-lg border border-gray-200 overflow-hidden">
+      <div class="px-4 py-3 bg-yellow-50 border-b border-yellow-100 flex justify-between items-center">
+        <h3 class="text-sm font-bold text-yellow-800">Problem List</h3>
+      </div>
+      
+      <ul class="divide-y divide-gray-100 max-h-60 overflow-y-auto">
+        <% @patient.conditions.each do |condition| %>
+          <li class="px-4 py-3 text-sm flex justify-between group">
+            <div>
+              <p class="font-medium text-gray-900"><%= condition.name %></p>
+              <p class="text-xs text-gray-500">Onset: <%= condition.onset_date&.strftime("%m/%d/%Y") %> (<%= condition.status %>)</p>
+            </div>
+            <%= button_to "×", patient_condition_path(slug: @current_organization.slug, patient_id: @patient.id, id: condition.id), 
+                method: :delete, 
+                class: "text-gray-400 hover:text-red-600 font-bold opacity-0 group-hover:opacity-100 transition" 
+            %>
+          </li>
+        <% end %>
+        <% if @patient.conditions.empty? %>
+          <li class="px-4 py-3 text-sm text-gray-500 italic">No active problems.</li>
+        <% end %>
+      </ul>
+
+      <div class="bg-gray-50 p-3 border-t border-gray-200">
+        <%= form_with(model: [ @patient, Condition.new ], url: patient_conditions_path(slug: @current_organization.slug, patient_id: @patient.id), class: "space-y-2") do |f| %>
+          <div class="flex gap-2">
+            <%= f.text_field :name, placeholder: "Diagnosis...", class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+            <%= f.date_field :onset_date, class: "block w-32 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+          </div>
+          <div class="flex justify-end">
+            <%= f.hidden_field :status, value: "Active" %>
+            <%= f.submit "Add Problem", class: "rounded bg-white px-3 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="bg-white shadow sm:rounded-lg border border-gray-200 overflow-hidden">
+      <div class="px-4 py-3 bg-purple-50 border-b border-purple-100 flex justify-between items-center">
+        <h3 class="text-sm font-bold text-purple-900">Lab Results</h3>
+      </div>
+      
+      <ul class="divide-y divide-gray-100 max-h-60 overflow-y-auto">
+        <% @patient.labs.each do |lab| %>
+          <li class="px-4 py-3 text-sm flex justify-between group">
+            <div>
+              <p class="font-medium text-gray-900"><%= lab.test_type %></p>
+              <p class="text-xs text-purple-700">
+                 <%= lab.status %> • Result: <%= lab.result.presence || "Pending" %>
+                 <span class="text-gray-400 ml-1">(<%= lab.date&.strftime("%m/%d") %>)</span>
+              </p>
+            </div>
+            <%= button_to "×", patient_lab_path(slug: @current_organization.slug, patient_id: @patient.id, id: lab.id), 
+                method: :delete, 
+                class: "text-gray-400 hover:text-red-600 font-bold opacity-0 group-hover:opacity-100 transition" 
+            %>
+          </li>
+        <% end %>
+        <% if @patient.labs.empty? %>
+          <li class="px-4 py-3 text-sm text-gray-500 italic">No labs recorded.</li>
+        <% end %>
+      </ul>
+
+      <div class="bg-gray-50 p-3 border-t border-gray-200">
+        <%= form_with(model: [ @patient, Lab.new ], url: patient_labs_path(slug: @current_organization.slug, patient_id: @patient.id), class: "space-y-2") do |f| %>
+          <div class="flex gap-2">
+            <%= f.text_field :test_type, placeholder: "Test Name (e.g. CBC)...", class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+            <%= f.date_field :date, class: "block w-32 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+          </div>
+          <div class="flex gap-2">
+            <%= f.text_field :result, placeholder: "Result...", class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+            <%= f.select :status, ["Pending", "Completed"], {}, class: "block w-32 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+            <%= f.submit "Add", class: "rounded bg-white px-3 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="bg-white shadow sm:rounded-lg border border-gray-200 overflow-hidden">
+      <div class="px-4 py-3 bg-teal-50 border-b border-teal-100 flex justify-between items-center">
+        <h3 class="text-sm font-bold text-teal-900">DME / Equipment</h3>
+      </div>
+      
+      <ul class="divide-y divide-gray-100 max-h-60 overflow-y-auto">
+        <% @patient.dmes.each do |dme| %>
+          <li class="px-4 py-3 text-sm flex justify-between group">
+            <div>
+              <p class="font-medium text-gray-900"><%= dme.name %></p>
+              <p class="text-xs text-teal-700">
+                 <%= dme.status %> • Ordered: <%= dme.prescribed_date&.strftime("%m/%d/%Y") %>
+              </p>
+            </div>
+            <%= button_to "×", patient_dme_path(slug: @current_organization.slug, patient_id: @patient.id, id: dme.id), 
+                method: :delete, 
+                class: "text-gray-400 hover:text-red-600 font-bold opacity-0 group-hover:opacity-100 transition" 
+            %>
+          </li>
+        <% end %>
+        <% if @patient.dmes.empty? %>
+          <li class="px-4 py-3 text-sm text-gray-500 italic">No equipment ordered.</li>
+        <% end %>
+      </ul>
+
+      <div class="bg-gray-50 p-3 border-t border-gray-200">
+        <%= form_with(model: [ @patient, Dme.new ], url: patient_dmes_path(slug: @current_organization.slug, patient_id: @patient.id), class: "flex gap-2") do |f| %>
+          <%= f.text_field :name, placeholder: "Item...", class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+          <%= f.date_field :prescribed_date, class: "block w-32 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+          <%= f.hidden_field :status, value: "Ordered" %>
+          <%= f.submit "Add", class: "rounded bg-white px-3 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+        <% end %>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="space-y-6">
+    
+    <div class="bg-white shadow sm:rounded-lg border border-gray-200 overflow-hidden">
+      <div class="px-4 py-3 bg-indigo-50 border-b border-indigo-100 flex justify-between items-center">
+        <h3 class="text-sm font-bold text-indigo-900">Active Medications</h3>
+      </div>
+      
+      <ul class="divide-y divide-gray-100">
+        <% @patient.medications.active.order(created_at: :desc).each do |med| %>
+          <li class="px-4 py-3 hover:bg-gray-50 transition group">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-sm font-bold text-gray-900"><%= med.name %> <%= med.dosage %></p>
+                <p class="text-sm text-gray-600 mt-1"><span class="font-medium">Sig:</span> <%= med.sig %></p>
+                <div class="mt-1 flex gap-2 text-xs text-gray-500">
+                  <span>Qty: <%= med.quantity %></span>
+                  <span>&bull;</span>
+                  <span>Refills: <%= med.refills %></span>
+                </div>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                 <%= link_to print_patient_medication_path(slug: @current_organization.slug, patient_id: @patient.id, id: med.id), target: "_blank", class: "flex items-center gap-1 rounded-md bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" do %>
+                   <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                   </svg>
+                   Print
+                 <% end %>
+                 
+                 <%= button_to "×", patient_medication_path(slug: @current_organization.slug, patient_id: @patient.id, id: med.id), 
+                     method: :delete, 
+                     class: "text-gray-300 hover:text-red-600 font-bold px-2 text-lg" 
+                 %>
+              </div>
+            </div>
+          </li>
+        <% end %>
+        
+        <% if @patient.medications.active.empty? %>
+          <li class="px-4 py-6 text-center text-sm text-gray-500 italic">No active medications.</li>
+        <% end %>
+      </ul>
+    </div>
+
+    <div class="bg-white shadow sm:rounded-lg border border-gray-200 overflow-hidden">
+      <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+        <h3 class="text-sm font-bold text-gray-900">New Prescription</h3>
+      </div>
+      
+      <div class="p-4">
+        <%= form_with(model: [ @patient, Medication.new ], url: patient_medications_path(slug: @current_organization.slug, patient_id: @patient.id), class: "space-y-4") do |f| %>
+          
+          <div>
+            <%= f.label :name, "Medication Search", class: "block text-xs font-medium text-gray-700" %>
+            <%= f.text_field :name, placeholder: "e.g. Lisinopril", class: "mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+          </div>
+
+          <div>
+            <%= f.label :sig, "Sig (Directions on Label)", class: "block text-xs font-medium text-gray-700" %>
+            <%= f.text_area :sig, rows: 2, placeholder: "e.g. Take 1 tablet by mouth daily", class: "mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <%= f.label :quantity, "Dispense Qty", class: "block text-xs font-medium text-gray-700" %>
+              <div class="relative mt-1 rounded-md shadow-sm">
+                <%= f.number_field :quantity, placeholder: "30", class: "block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+              </div>
+            </div>
+            
+            <div>
+              <%= f.label :quantity_unit, "Unit", class: "block text-xs font-medium text-gray-700" %>
+              <%= f.select :quantity_unit, ["Tablets", "Capsules", "mL", "Grams", "Units", "Packs"], {}, class: "mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+             <div>
+              <%= f.label :refills, "Refills", class: "block text-xs font-medium text-gray-700" %>
+              <%= f.select :refills, [0, 1, 2, 3, 4, 5, 11, 12, "PRN"], {}, class: "mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+            </div>
+             <div>
+              <%= f.label :pharmacy_note, "Pharmacy Note", class: "block text-xs font-medium text-gray-700" %>
+              <%= f.text_field :pharmacy_note, placeholder: "Optional", class: "mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 sm:text-sm" %>
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <%= f.submit "Prescribe & Print", class: "w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 cursor-pointer" %>
+          </div>
+
+        <% end %>
+      </div>
+    </div>
+
+  </div>
+</div>

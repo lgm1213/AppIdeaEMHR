@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_16_214954) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_18_191241) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -112,6 +112,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_16_214954) do
     t.index ["uploader_id"], name: "index_documents_on_uploader_id"
   end
 
+  create_table "encounter_procedures", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.decimal "charge_amount", precision: 10, scale: 2
+    t.datetime "created_at", null: false
+    t.uuid "encounter_id", null: false
+    t.uuid "procedure_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["encounter_id"], name: "index_encounter_procedures_on_encounter_id"
+    t.index ["procedure_id"], name: "index_encounter_procedures_on_procedure_id"
+  end
+
   create_table "encounters", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "appointment_id"
     t.text "assessment"
@@ -156,11 +166,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_16_214954) do
 
   create_table "medications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.integer "days_supply"
     t.string "dosage"
     t.string "frequency"
     t.string "name"
     t.uuid "patient_id", null: false
+    t.string "pharmacy_note"
     t.uuid "prescribed_by_id", null: false
+    t.integer "quantity"
+    t.string "quantity_unit"
+    t.integer "refills", default: 0
+    t.text "sig"
     t.string "status"
     t.datetime "updated_at", null: false
     t.index ["patient_id"], name: "index_medications_on_patient_id"
@@ -194,6 +210,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_16_214954) do
   end
 
   create_table "patients", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "city"
     t.datetime "created_at", null: false
     t.date "date_of_birth"
     t.string "email"
@@ -202,8 +219,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_16_214954) do
     t.string "last_name"
     t.uuid "organization_id", null: false
     t.string "phone"
+    t.string "state"
+    t.string "street_address"
     t.datetime "updated_at", null: false
+    t.string "zip_code"
     t.index ["organization_id"], name: "index_patients_on_organization_id"
+  end
+
+  create_table "procedures", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "code"
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.decimal "price", precision: 10, scale: 2
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_procedures_on_code", unique: true
   end
 
   create_table "providers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -267,6 +296,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_16_214954) do
   add_foreign_key "dmes", "patients"
   add_foreign_key "documents", "patients"
   add_foreign_key "documents", "users", column: "uploader_id"
+  add_foreign_key "encounter_procedures", "encounters"
+  add_foreign_key "encounter_procedures", "procedures"
   add_foreign_key "encounters", "appointments"
   add_foreign_key "encounters", "organizations"
   add_foreign_key "encounters", "patients"

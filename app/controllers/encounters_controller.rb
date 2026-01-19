@@ -1,69 +1,38 @@
 class EncountersController < ApplicationController
+  before_action :set_encounter, only: [ :show, :edit, :update, :destroy, :superbill, :hcfa ]
   before_action :set_patient
-  before_action :set_encounter, only: %i[ show edit update destroy ]
 
-  # GET /:slug/patients/:patient_id/encounters
   def index
-    @encounters = @patient.encounters.includes(:provider).order(visit_date: :desc)
+    @encounters = @patient.encounters.order(visit_date: :desc)
   end
 
-  # GET /:slug/patients/:patient_id/encounters/1
   def show
   end
 
-  # GET /:slug/patients/:patient_id/encounters/new
   def new
     @encounter = @patient.encounters.build
     @encounter.visit_date = Time.current
-
-    # If appointment_id is present, hydrate from Appointment
-    if params[:appointment_id].present?
-      appointment = @current_organization.appointments.find_by(id: params[:appointment_id])
-
-      if appointment
-        # Link to the appointment
-        @encounter.appointment_id = appointment.id
-
-        # Auto-select the provider scheduled for this visit
-        @encounter.provider_id = appointment.provider_id
-
-        # Pre-fill Subjective with the reason for visit
-        @encounter.subjective = "Reason for Visit: #{appointment.reason}\n\n"
-      end
-    # If no appointment, try to guess provider from current user
-    elsif Current.user&.is_provider?
-      @encounter.provider = Current.user.provider
-    end
+    # Set default provider to current user if they are a provider
+    @encounter.provider = @current_organization.providers.find_by(user: Current.user)
   end
 
-  # POST /:slug/patients/:patient_id/encounters
+  def edit
+  end
+
   def create
     @encounter = @patient.encounters.build(encounter_params)
     @encounter.organization = @current_organization
 
-    # If the user didn't select a provider, default to the logged-in provider
-    if @encounter.provider_id.blank? && Current.user&.is_provider?
-      @encounter.provider = Current.user.provider
-    end
-
     if @encounter.save
-      # If this note is linked to an appointment, mark it as completed
-      @encounter.appointment&.update(status: :completed)
-
-      redirect_to patient_encounters_path(@current_organization.slug, @patient), notice: "SOAP note saved."
+      redirect_to patient_path(slug: @current_organization.slug, id: @patient.id, tab: "clinical"), notice: "Encounter note saved."
     else
       render :new, status: :unprocessable_entity
     end
   end
 
-  # GET /:slug/patients/:patient_id/encounters/1/edit
-  def edit
-  end
-
-  # PATCH/PUT /:slug/patients/:patient_id/encounters/1
   def update
     if @encounter.update(encounter_params)
-      redirect_to patient_encounters_path(@current_organization.slug, @patient), notice: "SOAP note updated."
+      redirect_to patient_path(slug: @current_organization.slug, id: @patient.id, tab: "clinical"), notice: "Encounter note updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -71,20 +40,60 @@ class EncountersController < ApplicationController
 
   def destroy
     @encounter.destroy
-    redirect_to patient_encounters_path(@current_organization.slug, @patient), notice: "Encounter deleted."
+    redirect_to patient_path(slug: @current_organization.slug, id: @patient.id, tab: "clinical"), notice: "Encounter deleted."
+  end
+
+  # GET /encounters/:id/superbill
+  def superbill
+    pdf = SuperbillGenerator.new(@encounter).call
+
+    send_data pdf,
+              filename: "Superbill_#{@encounter.patient.last_name}_#{@encounter.visit_date}.pdf",
+              type: "application/pdf",
+              disposition: "inline"
+  end
+
+  # GET /encounters/:id/hfca
+  def hcfa
+    # Default to :print (text only) for physical mail
+    # Pass ?mode=digital to get the full PDF for email/storage
+    mode = params[:mode] == "digital" ? :digital : :print
+
+    pdf = Cms1500Generator.new(@encounter, mode: mode).call
+
+    filename = mode == :digital ? "Claim_#{@encounter.id}_FULL.pdf" : "Claim_#{@encounter.id}_PRINT.pdf"
+
+    send_data pdf,
+              filename: filename,
+              type: "application/pdf",
+              disposition: "inline"
   end
 
   private
 
-  def set_patient
-    @patient = @current_organization.patients.find(params[:patient_id])
+  def set_encounter
+    # Find the encounter by ID (scoped to organization for security)
+    @encounter = @current_organization.encounters.find(params[:id])
   end
 
-  def set_encounter
-    @encounter = @patient.encounters.find(params[:id])
+  def set_patient
+    if @encounter
+      # If we already found the encounter, the patient is attached to it!
+      @patient = @encounter.patient
+    elsif params[:patient_id]
+      # Otherwise (like in 'new' or 'create'), use the URL param
+      @patient = @current_organization.patients.find(params[:patient_id])
+    else
+      # Safety net
+      redirect_to patients_path(slug: @current_organization.slug), alert: "Patient context missing."
+    end
   end
 
   def encounter_params
-    params.require(:encounter).permit(:visit_date, :subjective, :objective, :assessment, :plan, :provider_id, :appointment_id)
+    params.require(:encounter).permit(
+      :patient_id, :provider_id, :visit_date, :appointment_id,
+      :subjective, :objective, :assessment, :plan,
+      procedure_ids: [] # Allow the checkbox array
+    )
   end
 end

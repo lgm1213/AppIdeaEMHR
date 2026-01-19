@@ -67,4 +67,9 @@ group :test do
   gem "selenium-webdriver"
 end
 
+# Audit Logging for Models
 gem "paper_trail", "~> 17.0"
+
+# PDF Generation
+gem "prawn", "~> 2.4"
+gem "prawn-table", "~> 0.2.2"
