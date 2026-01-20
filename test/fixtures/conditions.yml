@@ -1,13 +1,11 @@
-# test/fixtures/procedures.yml
+# test/fixtures/conditions.yml
 
 one:
-  code: "99213"          # Unique Code
-  name: "Office Visit, Level 3"
-  price: "150.00"
-  organization: one
+  name: "Essential Hypertension"
+  code: "I10"       # ICD-10 Code
+  patient: one      # Links to patients.yml
 
 two:
-  code: "99214"          # Unique Code (Must be different from 'one')
-  name: "Office Visit, Level 4"
-  price: "200.00"
-  organization: one
+  name: "Type 2 Diabetes"
+  code: "E11.9"
+  patient: one

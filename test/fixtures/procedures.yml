@@ -1,11 +1,13 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# test/fixtures/procedures.yml
 
 one:
-  code: MyString
-  name: MyString
-  price: 9.99
+  code: "99213"          # Unique Code
+  name: "Office Visit, Level 3"
+  price: "150.00"
+  organization: one
 
 two:
-  code: MyString
-  name: MyString
-  price: 9.99
+  code: "99214"          # Unique Code (Must be different from 'one')
+  name: "Office Visit, Level 4"
+  price: "200.00"
+  organization: one
