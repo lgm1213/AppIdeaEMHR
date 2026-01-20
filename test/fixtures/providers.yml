@@ -1,19 +1,18 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
+# test/fixtures/providers.yml
 one:
-  user: one
+  user: two           # Links to Dr. Sarah Jones above
   organization: one
-  npi: MyString
-  license_number: MyString
-  dea_number: MyString
-  specialty: MyString
-  taxonomy_code: MyString
+  npi: "1234567890"
+  license_number: "LIC-001"
+  dea_number: "DEA-001"
+  specialty: "General Practice"
+  taxonomy_code: "207Q00000X"
 
 two:
-  user: two
-  organization: two
-  npi: MyString
-  license_number: MyString
-  dea_number: MyString
-  specialty: MyString
-  taxonomy_code: MyString
+  user: one           # Admin user can technically be a provider too in tests
+  organization: one
+  npi: "0987654321"
+  license_number: "LIC-002"
+  dea_number: "DEA-002"
+  specialty: "Cardiology"
+  taxonomy_code: "207RC0000X"

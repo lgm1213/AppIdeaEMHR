@@ -1,9 +1,28 @@
-<% password_digest = BCrypt::Password.create("password") %>
+# test/fixtures/users.yml
+<% password_digest = BCrypt::Password.create("password123") %>
+
 
 one:
-  email_address: one@example.com
+  first_name: "Admin"
+  last_name: "User"
+  email_address: "one@example.com"
   password_digest: <%= password_digest %>
+  organization: one
+  role: 1  
+
 
 two:
-  email_address: two@example.com
+  first_name: "Dr. Sarah"
+  last_name: "Jones"
+  email_address: "two@example.com"
   password_digest: <%= password_digest %>
+  organization: one
+  role: 0  
+
+superadmin:
+  first_name: "Super"
+  last_name: "Admin"
+  email_address: "super@example.com"
+  password_digest: <%= BCrypt::Password.create('password123') %>
+  organization: one
+  role: 3  # 3 = Superadmin

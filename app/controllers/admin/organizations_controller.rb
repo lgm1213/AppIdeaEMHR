@@ -1,6 +1,6 @@
 module Admin
   class OrganizationsController < Admin::BaseController
-    before_action :set_organization, only: [ :show, :edit, :update ]
+    before_action :set_organization, only: [ :show, :edit, :update, :destroy ]
 
     def index
       @organizations = Organization.all.order(:name)
@@ -34,6 +34,11 @@ module Admin
       else
         render :edit, status: :unprocessable_entity
       end
+    end
+
+    def destroy
+      @organization.destroy
+      redirect_to admin_organizations_path, notice: "Organization has been deleted."
     end
 
     private

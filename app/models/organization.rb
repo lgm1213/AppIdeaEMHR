@@ -11,8 +11,11 @@ class Organization < ApplicationRecord
 
 
   # Medical Encounters and Billing
-  has_many :appointments
-  has_many :encounters
+  has_many :appointments, dependent: :destroy
+  has_many :encounters, dependent: :destroy
+  has_many :procedures, dependent: :destroy
+  has_many :messages, dependent: :destroy
+
 
 
   # Allow the signup form to create the Admin User at the same time
@@ -28,7 +31,9 @@ class Organization < ApplicationRecord
 
   def generate_slug
     return if name.blank?
-    # Create a URL-safe version of the name
-    self.slug = name.parameterize
+
+    if self.slug.blank?
+      self.slug = name.parameterize
+    end
   end
 end

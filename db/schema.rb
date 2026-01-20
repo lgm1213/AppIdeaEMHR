@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_18_191241) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_20_141448) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -230,9 +230,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_191241) do
     t.string "code"
     t.datetime "created_at", null: false
     t.string "name"
+    t.uuid "organization_id", null: false
     t.decimal "price", precision: 10, scale: 2
     t.datetime "updated_at", null: false
-    t.index ["code"], name: "index_procedures_on_code", unique: true
+    t.index ["organization_id", "code"], name: "index_procedures_on_organization_id_and_code", unique: true
+    t.index ["organization_id"], name: "index_procedures_on_organization_id"
   end
 
   create_table "providers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -311,6 +313,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_18_191241) do
   add_foreign_key "messages", "users", column: "recipient_id"
   add_foreign_key "messages", "users", column: "sender_id"
   add_foreign_key "patients", "organizations"
+  add_foreign_key "procedures", "organizations"
   add_foreign_key "providers", "organizations"
   add_foreign_key "providers", "users"
   add_foreign_key "sessions", "users"

@@ -3,46 +3,73 @@ require "test_helper"
 class FacilitiesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @facility = facilities(:one)
+    # Define the organization for the routing scope
+    @organization = @facility.organization
+    @user = users(:one)
+
+    # Simulate logging in (assuming you have a helper or need to post to session)
+    # If using your SessionController logic:
+    post session_url, params: { email_address: @user.email_address, password: "password123" }
   end
 
   test "should get index" do
-    get facilities_url
+    # PASS SLUG
+    get facilities_url(slug: @organization.slug)
     assert_response :success
   end
 
   test "should get new" do
-    get new_facility_url
+    # PASS SLUG
+    get new_facility_url(slug: @organization.slug)
     assert_response :success
   end
 
   test "should create facility" do
     assert_difference("Facility.count") do
-      post facilities_url, params: { facility: { address: @facility.address, name: @facility.name, organization_id: @facility.organization_id, phone: @facility.phone } }
+      post facilities_url(slug: @organization.slug), params: {
+        facility: {
+          name: "New Facility",
+          address: "123 Test St",
+          city: "Miami",
+          state: "FL",
+          zip_code: "33101",
+          phone: "555-0000"
+        }
+      }
     end
 
-    assert_redirected_to facility_url(Facility.last)
+    # Expect redirect to the Index (List), not the Show page
+    assert_redirected_to facilities_url(slug: @organization.slug)
   end
 
   test "should show facility" do
-    get facility_url(@facility)
+    # PASS SLUG & ID
+    get facility_url(slug: @organization.slug, id: @facility.id)
     assert_response :success
   end
 
   test "should get edit" do
-    get edit_facility_url(@facility)
+    # PASS SLUG & ID
+    get edit_facility_url(slug: @organization.slug, id: @facility.id)
     assert_response :success
   end
 
   test "should update facility" do
-    patch facility_url(@facility), params: { facility: { address: @facility.address, name: @facility.name, organization_id: @facility.organization_id, phone: @facility.phone } }
-    assert_redirected_to facility_url(@facility)
+    # PASS SLUG & ID
+    patch facility_url(slug: @organization.slug, id: @facility.id), params: {
+      facility: {
+        name: "Updated Name"
+      }
+    }
+    assert_redirected_to facility_url(slug: @organization.slug, id: @facility.id)
   end
 
   test "should destroy facility" do
     assert_difference("Facility.count", -1) do
-      delete facility_url(@facility)
+      # PASS SLUG & ID
+      delete facility_url(slug: @organization.slug, id: @facility.id)
     end
 
-    assert_redirected_to facilities_url
+    assert_redirected_to facilities_url(slug: @organization.slug)
   end
 end

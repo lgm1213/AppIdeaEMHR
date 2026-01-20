@@ -3,46 +3,69 @@ require "test_helper"
 class EncountersControllerTest < ActionDispatch::IntegrationTest
   setup do
     @encounter = encounters(:one)
+    @patient = @encounter.patient
+    @organization = @encounter.organization
+
+    # Simulate login
+    @user = users(:one)
+    post session_url, params: { email_address: @user.email_address, password: "password123" }
   end
 
   test "should get index" do
-    get encounters_url
+    # Index is nested under Patient
+    get patient_encounters_url(slug: @organization.slug, patient_id: @patient.id)
     assert_response :success
   end
 
   test "should get new" do
-    get new_encounter_url
+    # New is nested under Patient
+    get new_patient_encounter_url(slug: @organization.slug, patient_id: @patient.id)
     assert_response :success
   end
 
   test "should create encounter" do
     assert_difference("Encounter.count") do
-      post encounters_url, params: { encounter: { assessment: @encounter.assessment, objective: @encounter.objective, organization_id: @encounter.organization_id, patient_id: @encounter.patient_id, plan: @encounter.plan, provider_id: @encounter.provider_id, subjective: @encounter.subjective, visit_date: @encounter.visit_date } }
+      post patient_encounters_url(slug: @organization.slug, patient_id: @patient.id), params: {
+        encounter: {
+          assessment: @encounter.assessment,
+          objective: @encounter.objective,
+          plan: @encounter.plan,
+          provider_id: @encounter.provider_id,
+          subjective: @encounter.subjective,
+          visit_date: @encounter.visit_date
+        }
+      }
     end
 
-    assert_redirected_to encounter_url(Encounter.last)
+    # Expect redirect to the Patient's Clinical Tab
+    assert_redirected_to patient_path(slug: @organization.slug, id: @patient.id, tab: "clinical")
   end
 
   test "should show encounter" do
-    get encounter_url(@encounter)
+    # Show is shallow (not nested)
+    get encounter_url(slug: @organization.slug, id: @encounter.id)
     assert_response :success
   end
 
   test "should get edit" do
-    get edit_encounter_url(@encounter)
+    get edit_encounter_url(slug: @organization.slug, id: @encounter.id)
     assert_response :success
   end
 
   test "should update encounter" do
-    patch encounter_url(@encounter), params: { encounter: { assessment: @encounter.assessment, objective: @encounter.objective, organization_id: @encounter.organization_id, patient_id: @encounter.patient_id, plan: @encounter.plan, provider_id: @encounter.provider_id, subjective: @encounter.subjective, visit_date: @encounter.visit_date } }
-    assert_redirected_to encounter_url(@encounter)
+    patch encounter_url(slug: @organization.slug, id: @encounter.id), params: {
+      encounter: { assessment: "Updated Assessment" }
+    }
+    # Expect redirect to Patient's Clinical Tab
+    assert_redirected_to patient_path(slug: @organization.slug, id: @patient.id, tab: "clinical")
   end
 
   test "should destroy encounter" do
     assert_difference("Encounter.count", -1) do
-      delete encounter_url(@encounter)
+      delete encounter_url(slug: @organization.slug, id: @encounter.id)
     end
 
-    assert_redirected_to encounters_url
+    # Expect redirect to Patient's Clinical Tab
+    assert_redirected_to patient_path(slug: @organization.slug, id: @patient.id, tab: "clinical")
   end
 end

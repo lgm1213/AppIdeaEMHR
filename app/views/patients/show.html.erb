@@ -131,19 +131,19 @@
                        data-action="click->carousel#open"
                        data-index="<%= index %>">
                     
-                    <% if doc.file.representable? %>
+                    <% if doc.file.attached? && doc.file.representable? %>
                       <%= image_tag doc.file.representation(resize_to_limit: [300, 300]), class: "object-cover w-full h-full group-hover:opacity-75" %>
                     <% else %>
                       <div class="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-50">
                         <svg class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 2H7a2 2 0 00-2 2v15a2 2 0 002 2z" />
                         </svg>
-                        <span class="text-xs font-bold uppercase"><%= doc.file.filename.extension %></span>
+                        <span class="text-xs font-bold uppercase"><%= doc.file&.filename&.extension || "FILE" %></span>
                       </div>
                     <% end %>
 
                     <div class="absolute inset-x-0 bottom-0 bg-black/60 p-2 text-white text-xs truncate">
-                      <%= doc.file.filename %>
+                      <%= doc.file&.filename || "Untitled" %>
                     </div>
                     
                     <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
@@ -181,7 +181,7 @@
                     dropzone_target: "input", 
                     action: "change->dropzone#upload" 
                   } 
-                %>
+               %>
                 <%= form.submit "Hidden Submit", 
                   class: "hidden", 
                   data: { dropzone_target: "submit" } 
@@ -199,12 +199,12 @@
                           <path fill-rule="evenodd" d="M15.621 4.379a3 3 0 00-4.242 0l-7 7a3 3 0 004.241 4.243h.001l.497-.5a.75.75 0 011.064 1.057l-.498.501-.002.002a4.5 4.5 0 01-6.364-6.364l7-7a4.5 4.5 0 016.368 6.36l-3.455 3.553A2.625 2.625 0 119.52 9.52l3.45-3.451a.75.75 0 111.061 1.06l-3.45 3.451a1.125 1.125 0 001.587 1.595l3.454-3.553a3 3 0 000-4.242z" clip-rule="evenodd" />
                         </svg>
                         <span class="ml-2 truncate font-medium text-gray-900 group-hover:text-indigo-600 group-hover:underline">
-                          <%= doc.file.filename %>
+                          <%= doc.file&.filename || "Untitled" %>
                         </span>
                       </button>
                       
                       <span class="ml-2 text-xs text-gray-500 hidden sm:block">
-                        <%= (doc.file.byte_size / 1024.0).round(0) %> KB 
+                        <%= ((doc.file&.byte_size || 0) / 1024.0).round(0) %> KB 
                         <span class="mx-1">•</span>
                         <%= doc.created_at.strftime("%b %d, %Y at %l:%M %p") %>
                         <span class="mx-1">•</span> 
@@ -213,7 +213,9 @@
                     </div>
                     
                     <div class="ml-4 flex-shrink-0 flex gap-4">
-                      <%= link_to "Download", rails_blob_path(doc.file, disposition: "attachment"), class: "font-medium text-indigo-600 hover:text-indigo-500" %>
+                      <% if doc.file.attached? %>
+                        <%= link_to "Download", rails_blob_path(doc.file, disposition: "attachment"), class: "font-medium text-indigo-600 hover:text-indigo-500" %>
+                      <% end %>
                       <%= link_to "Delete", patient_document_path(slug: @current_organization.slug, patient_id: @patient.id, id: doc.id), 
                         data: { turbo_method: :delete, turbo_confirm: "Permanently delete this file?" }, 
                         class: "font-medium text-red-600 hover:text-red-500" 
@@ -240,38 +242,40 @@
 
                 <div class="relative w-full h-full max-h-screen flex items-center justify-center">
                   
-                  <button data-action="click->carousel#previous" class="absolute left-4 z-20 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition">
+                   <button data-action="click->carousel#previous" class="absolute left-4 z-20 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition">
                     <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
-                  </button>
+                   </button>
 
                   <% @patient.documents.order(created_at: :desc).each_with_index do |doc, index| %>
                     <div data-carousel-target="slide" class="hidden w-full h-full flex flex-col items-center justify-center px-12 py-8">
                       
                       <div class="relative max-h-[85vh] w-auto max-w-full bg-black shadow-2xl rounded-lg overflow-hidden flex items-center justify-center">
-                        <% if doc.file.representable? %>
+                         <% if doc.file.attached? && doc.file.representable? %>
                           <%= image_tag doc.file.representation(resize_to_limit: [1200, 1000]), 
                             class: "max-h-[85vh] w-auto object-contain" 
                           %>
-                        <% else %>
+                         <% else %>
                           <div class="h-96 w-96 bg-gray-800 flex flex-col items-center justify-center text-gray-400">
                             <svg class="h-20 w-20 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            <p class="text-xl font-bold"><%= doc.file.filename %></p>
+                            <p class="text-xl font-bold"><%= doc.file&.filename || "No Preview" %></p>
                             <p class="mt-2 text-sm">Preview not available.</p>
-                            <%= link_to "Download File", rails_blob_path(doc.file, disposition: "attachment"), 
-                              class: "mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500" 
-                            %>
+                            <% if doc.file.attached? %>
+                              <%= link_to "Download File", rails_blob_path(doc.file, disposition: "attachment"), 
+                                class: "mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500" 
+                              %>
+                            <% end %>
                           </div>
                         <% end %>
                       </div>
 
                       <div class="mt-4 text-white text-center">
-                        <p class="text-lg font-medium"><%= doc.file.filename %></p>
+                        <p class="text-lg font-medium"><%= doc.file&.filename || "Untitled" %></p>
                         <p class="text-sm text-gray-400">
-                          Page <span data-carousel-target="counter"><%= index + 1 %> / <%= @patient.documents.count %></span>
+                           Page <span data-carousel-target="counter"><%= index + 1 %> / <%= @patient.documents.count %></span>
                         </p>
                       </div>
 
@@ -281,7 +285,7 @@
                   <button data-action="click->carousel#next" class="absolute right-4 z-20 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition">
                     <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
+                     </svg>
                   </button>
 
                 </div>
@@ -306,12 +310,12 @@
                 <div class="flex items-center gap-3">
                   <div class="flex-shrink-0 flex flex-col items-center bg-indigo-50 rounded p-1 text-indigo-700 w-12">
                     <span class="text-xs font-bold"><%= appt.start_time.strftime("%b") %></span>
-                    <span class="text-lg font-bold"><%= appt.start_time.day %></span>
+                     <span class="text-lg font-bold"><%= appt.start_time.day %></span>
                   </div>
                   <div>
                     <p class="text-sm font-medium text-gray-900"><%= appt.start_time.strftime("%l:%M %p") %></p>
                     <p class="text-xs text-gray-500"><%= appt.provider.full_name %></p>
-                  </div>
+                   </div>
                 </div>
               </li>
             <% end %>
@@ -321,7 +325,7 @@
                 <%= link_to "Schedule Now", new_appointment_path(slug: @current_organization.slug, patient_id: @patient.id), 
                 class: "text-sm text-indigo-600 font-medium hover:underline" 
               %>
-              </li>
+               </li>
             <% end %>
           </ul>
         </div>
@@ -338,17 +342,17 @@
                 <div class="flex items-center gap-3">
                   <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200">
                     <%= member.user.first_name[0] %><%= member.user.last_name[0] %>
-                  </div>
+                   </div>
                   <div>
                     <p class="text-sm font-medium text-gray-900"><%= member.user.full_name %></p>
                     <p class="text-xs text-gray-500"><%= member.role %></p>
                   </div>
-                </div>
+               </div>
                 
                 <%= button_to "Remove", 
                     patient_care_team_member_path(slug: @current_organization.slug, patient_id: @patient.id, id: member.id), 
                     method: :delete, 
-                    class: "text-xs text-red-600 hover:text-red-800 font-medium" 
+                     class: "text-xs text-red-600 hover:text-red-800 font-medium" 
                 %>
               </li>
             <% end %>
@@ -369,7 +373,7 @@
                     { class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" } 
                   %>
                   
-                  <div class="flex gap-2">
+                   <div class="flex gap-2">
                     <%= f.text_field :role, 
                       placeholder: "Role (e.g. PCP)", 
                       class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm" 
@@ -399,7 +403,7 @@
         <p class="mt-1 max-w-2xl text-sm text-gray-500">Historical record of all changes made to this patient's file.</p>
       </div>
       
-      <div class="flow-root">
+       <div class="flow-root">
         <ul role="list" class="divide-y divide-gray-200">
           <% if @audit_logs.any? %>
             <%= render partial: "patients/tabs/audit_entry", collection: @audit_logs, as: :version %>

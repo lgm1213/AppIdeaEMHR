@@ -1,19 +1,18 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
+# test/fixtures/patients.yml
 one:
-  first_name: MyString
-  last_name: MyString
-  date_of_birth: 2026-01-13
-  gender: MyString
-  phone: MyString
-  email: MyString
+  first_name: "John"
+  last_name: "Doe"
+  date_of_birth: 1980-01-01
+  gender: "Male"
+  phone: "555-0101"
+  email: "john@example.com"
   organization: one
 
 two:
-  first_name: MyString
-  last_name: MyString
-  date_of_birth: 2026-01-13
-  gender: MyString
-  phone: MyString
-  email: MyString
-  organization: two
+  first_name: "Jane"
+  last_name: "Smith"
+  date_of_birth: 1990-05-15
+  gender: "Female"
+  phone: "555-0102"
+  email: "jane@example.com"
+  organization: one
