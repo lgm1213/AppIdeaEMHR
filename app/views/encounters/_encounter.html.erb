@@ -4,7 +4,7 @@
     <div>
       <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Patient</p>
       <p class="text-lg font-medium text-indigo-700">
-        <%= link_to encounter.patient.full_name, patient_path(slug: @current_organization.slug, id: encounter.patient.id), class: "hover:underline" %>
+        <%= link_to encounter.patient.full_name, patient_path(slug: encounter.organization.slug, id: encounter.patient.id), class: "hover:underline" %>
       </p>
       <p class="text-xs text-gray-500">DOB: <%= encounter.patient.date_of_birth&.strftime("%m/%d/%Y") %></p>
     </div>

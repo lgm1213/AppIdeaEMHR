@@ -20,8 +20,14 @@ module Admin
     end
 
     def create
+      # Initialize with safe params
       @user = @organization.users.build(user_params)
       @user.password ||= "Temporary123!"
+
+      # Manual Role Assignment
+      if params[:user][:role].present?
+        @user.role = params[:user][:role]
+      end
 
       if @user.save
         redirect_to admin_organization_path(@organization), notice: "User created successfully."
@@ -35,8 +41,13 @@ module Admin
     end
 
     def update
+      # Manual Role Assignment
+      if params[:user][:role].present?
+        @user.role = params[:user][:role]
+      end
+
+      # Update safe params
       if @user.update(user_params)
-        # Redirect back to the organization they belong to
         redirect_to admin_organization_path(@user.organization), notice: "User details updated."
       else
         render :edit, status: :unprocessable_entity
@@ -62,7 +73,8 @@ module Admin
     end
 
     def user_params
-      params.require(:user).permit(:first_name, :last_name, :email_address, :role, :password, :password_confirmation)
+      # STRICTLY permit only safe fields.
+      params.require(:user).permit(:first_name, :last_name, :email_address, :password, :password_confirmation)
     end
   end
 end

@@ -1,15 +1,32 @@
-<% content_for :title, "Showing appointment" %>
+<% content_for :title, "Appointment Details" %>
 
-<div class="md:w-2/3 w-full">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
-  <% end %>
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="min-w-0 flex-1">
+      <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+        Appointment Details
+      </h2>
+      <p class="mt-1 text-sm text-gray-500">
+        <%= @appointment.start_time.strftime("%A, %B %d, %Y") %>
+      </p>
+    </div>
+    
+    <div class="mt-4 flex flex-shrink-0 md:ml-4 md:mt-0 gap-3">
+      <%= link_to "Back to Schedule", appointments_path(slug: @current_organization.slug), class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+      
+      <%= link_to "Edit", edit_appointment_path(slug: @current_organization.slug, id: @appointment.id), class: "rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" %>
+    </div>
+  </div>
 
-  <h1 class="font-bold text-4xl">Showing appointment</h1>
+  <div class="bg-white shadow sm:rounded-lg border border-gray-200 overflow-hidden">
+    <%= render partial: "appointments/appointment", locals: { appointment: @appointment } %>
+  </div>
 
-  <%= render @appointment %>
-
-  <%= link_to "Edit this appointment", edit_appointment_path(@appointment), class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= link_to "Back to appointments", appointments_path, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= button_to "Destroy this appointment", @appointment, method: :delete, form_class: "sm:inline-block mt-2 sm:mt-0 sm:ml-2", class: "w-full rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer", data: { turbo_confirm: "Are you sure?" } %>
+  <div class="mt-8 flex justify-end">
+    <%= button_to "Cancel Appointment", appointment_path(slug: @current_organization.slug, id: @appointment.id), 
+        method: :delete, 
+        class: "text-sm text-red-600 hover:text-red-900 font-medium",
+        data: { turbo_confirm: "Are you sure? This will remove the appointment." } 
+    %>
+  </div>
 </div>

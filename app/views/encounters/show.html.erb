@@ -53,12 +53,12 @@
           <div class="py-1">
             <%= link_to hcfa_encounter_path(slug: @current_organization.slug, id: @encounter.id, mode: 'digital'), target: "_blank", class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
               <span class="font-bold block">Digital Copy</span>
-              <span class="text-xs text-gray-500">Includes form background (Email/Fax)</span>
+              <span class="text-xs text-gray-500">Includes form background</span>
             <% end %>
             
             <%= link_to hcfa_encounter_path(slug: @current_organization.slug, id: @encounter.id, mode: 'print'), target: "_blank", class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
               <span class="font-bold block">Printer Copy</span>
-              <span class="text-xs text-gray-500">Text only (For pre-printed red forms)</span>
+              <span class="text-xs text-gray-500">Text only (For red forms)</span>
             <% end %>
           </div>
         </div>
@@ -71,7 +71,7 @@
   </div>
 
   <div class="bg-white shadow sm:rounded-lg border border-gray-200 p-6">
-    <%= render @encounter %>
+    <%= render partial: "encounters/encounter", locals: { encounter: @encounter } %>
   </div>
 
   <div class="mt-8 pt-6 border-t border-gray-100 flex justify-end">

@@ -2,12 +2,20 @@ class CareTeamMembersController < ApplicationController
   before_action :set_patient
 
   def create
-    @member = @patient.care_team_members.new(member_params)
+    @patient = Patient.find(params[:patient_id])
 
-    if @member.save
-      redirect_to patient_path(slug: @current_organization.slug, id: @patient.id), notice: "Team member added."
+    # Initialize with safe params only (user_id, status)
+    @care_team_member = @patient.care_team_members.new(care_team_member_params)
+
+    # Manually assign the role
+    if params[:care_team_member][:role].present?
+      @care_team_member.role = params[:care_team_member][:role]
+    end
+
+    if @care_team_member.save
+      redirect_to patient_path(@current_organization.slug, @patient), notice: "Member added."
     else
-      redirect_to patient_path(slug: @current_organization.slug, id: @patient.id), alert: "Error: #{@member.errors.full_messages.join(', ')}"
+      redirect_to patient_path(@current_organization.slug, @patient), alert: "Could not add member."
     end
   end
 
@@ -23,7 +31,8 @@ class CareTeamMembersController < ApplicationController
     @patient = Patient.find(params[:patient_id])
   end
 
-  def member_params
-    params.require(:care_team_member).permit(:user_id, :role, :status)
+  def care_team_member_params
+    # STRICTLY permit only safe fields. Role is assigned manually above.
+    params.require(:care_team_member).permit(:user_id, :status)
   end
 end

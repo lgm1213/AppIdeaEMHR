@@ -3,13 +3,13 @@
 one:
   patient: one
   name: MyString
-  icd10_code: MyString
+  code: MyString
   status: MyString
   onset_date: 2026-01-15
 
 two:
   patient: two
   name: MyString
-  icd10_code: MyString
+  code: MyString
   status: MyString
   onset_date: 2026-01-15
