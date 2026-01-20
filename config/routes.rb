@@ -8,6 +8,8 @@ Rails.application.routes.draw do
   get "signup", to: "registrations#new"
   post "signup", to: "registrations#create"
 
+  resources :cpt_codes, only: [ :index ]
+
   # SuperAdmin Routes
   namespace :admin do
     root to: "dashboard#index"
@@ -27,6 +29,7 @@ Rails.application.routes.draw do
 
     resources :facilities
     resources :providers
+    resources :procedures
 
     # Schedule
     resources :appointments
@@ -70,6 +73,8 @@ Rails.application.routes.draw do
       end
     end
   end
+
+
 
   # System Health Check
   get "up" => "rails/health#show", as: :rails_health_check

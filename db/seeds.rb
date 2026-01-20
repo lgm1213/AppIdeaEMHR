@@ -10,9 +10,13 @@
 
 
 puts "Seeding CPT Codes..."
-Procedure.find_or_create_by!(code: "99203") { |p| p.name = "New Patient Office Visit (Low/Mod)"; p.price = 150.00 }
-Procedure.find_or_create_by!(code: "99204") { |p| p.name = "New Patient Office Visit (Mod/High)"; p.price = 220.00 }
-Procedure.find_or_create_by!(code: "99213") { |p| p.name = "Established Patient Visit (Low/Mod)"; p.price = 100.00 }
-Procedure.find_or_create_by!(code: "99214") { |p| p.name = "Established Patient Visit (Mod/High)"; p.price = 160.00 }
-Procedure.find_or_create_by!(code: "93000") { |p| p.name = "Electrocardiogram (EKG)"; p.price = 75.00 }
-puts "Done."
+
+CptCode.create!([
+  { code: '99203', description: 'Office/outpatient visit new' },
+  { code: '99213', description: 'Office/outpatient visit est' },
+  { code: '99214', description: 'Office/outpatient visit est mod' },
+  { code: '73030', description: 'X-ray exam of shoulder' },
+  { code: '90715', description: 'Tdap vaccine' }
+])
+
+puts "Done!"

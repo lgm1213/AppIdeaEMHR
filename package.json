@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@github/combobox-nav": "^3.0.1"
+  }
+}

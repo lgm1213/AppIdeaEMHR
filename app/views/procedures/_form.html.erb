@@ -1,0 +1,46 @@
+<%= form_with(model: procedure, class: "space-y-6") do |form| %>
+
+  <%# --- CPT SEARCH SECTION --- %>
+  <div class="form-group" data-controller="cpt-search">
+    <label class="block text-sm font-medium text-gray-700">CPT Code Search</label>
+    
+    <div class="relative">
+      <input type="text" 
+             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+             placeholder="Type code (99213) or name (Office Visit)..." 
+             autocomplete="off"
+             data-cpt-search-target="input" 
+             data-action="input->cpt-search#search"
+             value="<%= procedure.code.present? ? "#{procedure.code} - #{procedure.name}" : '' %>">
+
+      <ul data-cpt-search-target="results" 
+          class="hidden absolute z-50 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+          </ul>
+    </div>
+
+    <%= form.hidden_field :code, data: { cpt_search_target: "hiddenCodeField" } %>
+    <%= form.hidden_field :name, data: { cpt_search_target: "hiddenNameField" } %>
+  </div>
+
+  <%# --- MODIFIERS SECTION --- %>
+  <div class="grid grid-cols-2 gap-4">
+    <div class="form-group">
+      <%= form.label :modifiers, "Modifiers", class: "block text-sm font-medium text-gray-700" %>
+      <%= form.text_field :modifiers, 
+          class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+          placeholder: "e.g. 25, LT" %>
+      <p class="mt-1 text-xs text-gray-500">Separate multiple modifiers with commas.</p>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :price, class: "block text-sm font-medium text-gray-700" %>
+      <%= form.number_field :price, step: "0.01",
+          class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <%= form.submit "Save Procedure", class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer" %>
+  </div>
+
+<% end %>
