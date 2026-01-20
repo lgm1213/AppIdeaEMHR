@@ -1,15 +1,13 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# test/fixtures/procedures.yml
 
 one:
-  patient: one
-  name: MyString
-  code: MyString
-  status: MyString
-  onset_date: 2026-01-15
+  code: "99213"          # Unique Code
+  name: "Office Visit, Level 3"
+  price: "150.00"
+  organization: one
 
 two:
-  patient: two
-  name: MyString
-  code: MyString
-  status: MyString
-  onset_date: 2026-01-15
+  code: "99214"          # Unique Code (Must be different from 'one')
+  name: "Office Visit, Level 4"
+  price: "200.00"
+  organization: one
