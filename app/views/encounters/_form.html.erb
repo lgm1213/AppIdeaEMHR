@@ -1,176 +1,117 @@
-<%# Determine the correct URL for nested resources within a tenant scope %>
-<% url = encounter.new_record? ? 
-    # Create Action: Still needs to be nested (to know who the patient is)
-    patient_encounters_path(slug: @current_organization.slug, patient_id: @patient.id) : 
-    # Update Action: Now MUST be shallow (just the encounter ID)
-    encounter_path(slug: @current_organization.slug, id: encounter.id) 
+<%# Determine the correct URL based on whether we are creating or updating %>
+<% form_url = if @encounter.new_record? 
+    { controller: 'encounters', action: 'create', slug: @organization.slug } 
+  else 
+    { controller: 'encounters', action: 'update', id: @encounter.id, slug: @organization.slug } 
+  end 
 %>
 
-<div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 flex justify-between items-center shadow-sm">
-  <div class="flex items-center gap-4">
-    <div class="h-12 w-12 rounded-full bg-blue-200 flex items-center justify-center text-blue-700 font-bold text-lg">
-      <%= @patient.first_name[0] %><%= @patient.last_name[0] %>
-    </div>
-    <div>
-      <h3 class="text-lg font-bold text-gray-900">
-        <%= @patient.last_name %>, <%= @patient.first_name %>
-      </h3>
-      <p class="text-sm text-blue-700 font-medium">
-        DOB: <%= @patient.date_of_birth.strftime("%m/%d/%Y") %> 
-        <span class="text-blue-400 mx-1">|</span> 
-        <%= @patient.gender %> 
-        <span class="text-blue-400 mx-1">|</span> 
-        <span class="font-mono"><%= @patient.phone %></span>
-      </p>
-    </div>
-  </div>
-  <div>
-    <%= link_to "Wrong Patient?", patients_path(slug: @current_organization.slug), class: "text-sm text-red-600 font-bold hover:underline" %>
-  </div>
-</div>
+<%= form_with(model: @encounter, 
+              url: form_url, 
+              local: true, 
+              class: "space-y-8") do |form| %>
 
-<%= form_with(model: encounter, url: url, class: "contents") do |form| %>
-  <% if encounter.errors.any? %>
-    <div class="rounded-md bg-red-50 p-4 mb-4">
-      <h3 class="text-sm font-medium text-red-800">Unable to save note:</h3>
-      <div class="mt-2 text-sm text-red-700">
-        <ul class="list-disc pl-5">
-          <% encounter.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-      </div>
+  <% if @encounter.errors.any? %>
+    <div class="bg-red-50 p-4 rounded border border-red-200">
+      <h4 class="text-red-800 font-bold mb-2">Please fix the following:</h4>
+      <ul class="list-disc ml-5 text-red-600 text-sm">
+        <% @encounter.errors.full_messages.each do |msg| %><li><%= msg %></li><% end %>
+      </ul>
     </div>
   <% end %>
 
-  <%= form.hidden_field :appointment_id %>
-
-  <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-    
+  <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-6">
     <div>
-      <label class="block text-sm font-bold text-gray-700">Patient Name</label>
-      <input type="text" 
-             value="<%= @patient.full_name %>" 
-             disabled 
-             class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 text-gray-500 shadow-sm cursor-not-allowed sm:text-sm focus:border-gray-300 focus:ring-0"
-      >
+      <label class="block text-sm font-bold text-gray-700">Patient</label>
+      <div class="mt-1 p-2 bg-gray-50 rounded border text-gray-800">
+        <%# Display generic name if patient is missing (for safety) %>
+        <%= @encounter.patient&.first_name || "Unknown" %> <%= @encounter.patient&.last_name %>
+      </div>
+      <%= form.hidden_field :patient_id %>
     </div>
 
     <div>
-      <%= form.label :visit_date, 
-        class: "block text-sm font-bold text-gray-700" 
-      %>
-      <%= form.datetime_field :visit_date, 
-        class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
-      %>
+      <%= form.label :visit_date, class: "block text-sm font-bold text-gray-700" %>
+      <%= form.date_field :visit_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" %>
     </div>
 
     <div>
       <%= form.label :provider_id, "Provider", class: "block text-sm font-bold text-gray-700" %>
+      <%# FIX 1: Use the new display_name method %>
       <%= form.collection_select :provider_id, 
-        @current_organization.providers.includes(:user), 
-        :id, 
-        :full_name, 
-        { prompt: "Select Provider" }, 
-        { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" } 
-      %>
+          @organization.providers, :id, :display_name, 
+          {}, 
+          class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" %>
     </div>
   </div>
 
-  <div class="space-y-6">
-    
-    <div>
-      <%= form.label :subjective, "S - Subjective (History of Present Illness)", 
-        class: "block text-sm font-bold text-indigo-900" 
-      %>
-      <div class="mt-1">
-        <%= form.text_area :subjective, 
-          rows: 4, 
-          class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm", 
-          placeholder: "Patient complains of..." 
-        %>
-      </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+      <h3 class="text-lg font-bold text-gray-900 mb-4">Subjective</h3>
+      <%= form.text_area :subjective, rows: 5, class: "block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500", placeholder: "Patient complains of..." %>
     </div>
 
-    <div>
-      <%= form.label :objective, 
-        "O - Objective (Vitals, Exam Findings)", 
-        class: "block text-sm font-bold text-indigo-900" 
-      %>
-      <div class="mt-1">
-        <%= form.text_area :objective, 
-          rows: 4, 
-          class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm", 
-          placeholder: "BP 120/80, HR 72..." 
-        %>
-      </div>
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+      <h3 class="text-lg font-bold text-gray-900 mb-4">Objective</h3>
+      <%= form.text_area :objective, rows: 5, class: "block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500", placeholder: "Vitals, Exam findings..." %>
     </div>
-
-    <div>
-      <%= form.label :assessment, 
-        "A - Assessment (Diagnosis)", 
-        class: "block text-sm font-bold text-indigo-900" 
-      %>
-      <div class="mt-1">
-        <%= form.text_area :assessment, 
-          rows: 3, 
-          class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm", 
-          placeholder: "1. Essential Hypertension" 
-        %>
-      </div>
-    </div>
-
-    <div>
-      <%= form.label :plan, 
-        "P - Plan (Treatment, Follow-up)", 
-        class: "block text-sm font-bold text-indigo-900" 
-      %>
-      <div class="mt-1">
-        <%= form.text_area :plan, 
-          rows: 4, 
-          class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm", 
-          placeholder: "Start Lisinopril 10mg..." 
-        %>
-      </div>
-    </div>
-
   </div>
 
-  <div class="mt-8 pt-8 border-t border-gray-200">
-    <h3 class="text-base font-semibold leading-6 text-gray-900 mb-4">Billing & Procedures</h3>
+  <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <h3 class="text-lg font-bold text-gray-900 mb-2">Assessment (Diagnoses)</h3>
     
-    <div class="bg-gray-50 p-4 rounded-md border border-gray-200 space-y-4">
-      <p class="text-sm text-gray-500 mb-2">Select procedures performed during this visit (CPT Codes):</p>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <%= form.collection_check_boxes :procedure_ids, Procedure.all.order(:code), :id, :display_name do |b| %>
-          <div class="relative flex items-start p-2 hover:bg-white rounded transition cursor-pointer">
-            <div class="flex h-6 items-center">
-              <%= b.check_box(class: "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 cursor-pointer") %>
-            </div>
-            <div class="ml-3 text-sm leading-6">
-              <%= b.label(class: "font-medium text-gray-900 cursor-pointer") %>
-            </div>
-          </div>
+    <div data-controller="nested-form">
+      <div data-nested-form-target="target" class="space-y-3">
+        <%= form.fields_for :encounter_diagnoses do |dx| %>
+          <%= render "encounter_diagnosis_fields", f: dx %>
         <% end %>
       </div>
       
-      <% if Procedure.count == 0 %>
-        <p class="text-sm text-red-500 italic">No procedures found. Please run 'rails db:seed' to load CPT codes.</p>
-      <% end %>
+      <button type="button" data-action="nested-form#add" class="mt-4 text-sm font-medium text-indigo-600 hover:text-indigo-800 flex items-center">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        Add Diagnosis
+      </button>
+
+      <template data-nested-form-target="template">
+        <%= form.fields_for :encounter_diagnoses, EncounterDiagnosis.new, child_index: 'NEW_RECORD' do |dx| %>
+          <%= render "encounter_diagnosis_fields", f: dx %>
+        <% end %>
+      </template>
     </div>
   </div>
-  <div class="mt-8 flex justify-end gap-x-4">
-    <%= link_to "Cancel", patient_encounters_path(slug: @current_organization.slug, patient_id: @patient.id), 
-      class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" 
-    %>
-    <%= form.submit "Sign & Save Note", 
+
+  <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <h3 class="text-lg font-bold text-gray-900 mb-2">Plan (Procedures)</h3>
+    
+    <div data-controller="nested-form">
+      <div data-nested-form-target="target" class="space-y-3">
+        <%= form.fields_for :encounter_procedures do |proc| %>
+          <%= render "encounter_procedure_fields", f: proc %>
+        <% end %>
+      </div>
+
+      <button type="button" data-action="nested-form#add" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none">
+        + Add Procedure
+      </button>
+
+      <template data-nested-form-target="template">
+        <%= form.fields_for :encounter_procedures, EncounterProcedure.new, child_index: 'NEW_RECORD' do |proc| %>
+          <%= render "encounter_procedure_fields", f: proc %>
+        <% end %>
+      </template>
+    </div>
+  </div>
+
+  <div class="pt-4 pb-12">
+    <%= form.submit "Finalize Encounter", 
       class: %w[
-        rounded-md bg-indigo-600 px-3 py-2 
-        text-sm font-semibold text-white shadow-sm 
-        hover:bg-indigo-500 
-        focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer
+        w-full flex justify-center py-3 px-4 
+        border border-transparent rounded-md shadow-sm 
+        text-lg font-medium text-white bg-green-600 
+        hover:bg-green-700 
+        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 cursor-pointer
       ].join(" ") 
     %>
   </div>
+
 <% end %>

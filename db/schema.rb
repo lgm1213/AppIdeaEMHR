@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_20_175330) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_20_182901) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -119,10 +119,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_20_175330) do
     t.index ["uploader_id"], name: "index_documents_on_uploader_id"
   end
 
+  create_table "encounter_diagnoses", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "description"
+    t.uuid "encounter_id", null: false
+    t.string "icd_code"
+    t.datetime "updated_at", null: false
+    t.index ["encounter_id"], name: "index_encounter_diagnoses_on_encounter_id"
+  end
+
   create_table "encounter_procedures", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.decimal "charge_amount", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.uuid "encounter_id", null: false
+    t.string "modifiers"
     t.uuid "procedure_id", null: false
     t.datetime "updated_at", null: false
     t.index ["encounter_id"], name: "index_encounter_procedures_on_encounter_id"
@@ -158,6 +168,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_20_175330) do
     t.datetime "updated_at", null: false
     t.string "zip_code"
     t.index ["organization_id"], name: "index_facilities_on_organization_id"
+  end
+
+  create_table "icd_codes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "code"
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_icd_codes_on_code"
   end
 
   create_table "labs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -306,6 +324,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_20_175330) do
   add_foreign_key "dmes", "patients"
   add_foreign_key "documents", "patients"
   add_foreign_key "documents", "users", column: "uploader_id"
+  add_foreign_key "encounter_diagnoses", "encounters"
   add_foreign_key "encounter_procedures", "encounters"
   add_foreign_key "encounter_procedures", "procedures"
   add_foreign_key "encounters", "appointments"

@@ -1,0 +1,52 @@
+<div class="nested-form-wrapper grid grid-cols-12 gap-3 mb-4 items-end p-3 bg-white rounded shadow-sm border border-gray-100" data-new-record="<%= f.object.new_record? %>">
+  
+  <div class="col-span-6" data-controller="cpt-search">
+    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide">CPT Search</label>
+    
+    <div class="relative mt-1">
+      <input type="text" 
+             class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+             placeholder="Type code (99213) or name..." 
+             autocomplete="off"
+             data-cpt-search-target="input" 
+             data-action="input->cpt-search#search"
+             value="<%= f.object.procedure&.code %>">
+      
+      <ul data-cpt-search-target="results" 
+          class="hidden absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+      </ul>
+    </div>
+
+    <%= f.hidden_field :cpt_code_search_value, 
+      data: 
+        { 
+          cpt_search_target: "hiddenCodeField" 
+        } 
+    %>
+  </div>
+
+  <div class="col-span-2">
+    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide">Mods</label>
+    <%= f.text_field :modifiers, 
+        class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm", 
+        placeholder: "25, LT" %>
+  </div>
+
+  <div class="col-span-2">
+    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide">Price</label>
+    <div class="relative mt-1 rounded-md shadow-sm">
+      <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2">
+        <span class="text-gray-500 sm:text-sm">$</span>
+      </div>
+      <%= f.number_field :charge_amount, step: "0.01", 
+          class: "block w-full rounded-md border-gray-300 pl-6 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+    </div>
+  </div>
+
+  <div class="col-span-2 flex justify-end pb-1">
+    <%= f.hidden_field :_destroy %>
+    <button type="button" data-action="nested-form#remove" class="text-red-600 hover:text-red-900 text-sm font-medium">
+      Remove
+    </button>
+  </div>
+</div>

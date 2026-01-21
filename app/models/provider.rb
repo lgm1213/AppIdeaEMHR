@@ -13,4 +13,8 @@ class Provider < ApplicationRecord
   def full_name
     "Dr. #{user&.last_name}"
   end
+
+  def display_name
+    "Dr. #{user.first_name} #{user.last_name} (NPI: #{npi})"
+  end
 end

@@ -1,4 +1,5 @@
 class EncountersController < ApplicationController
+  before_action :set_organization
   before_action :set_encounter, only: [ :show, :edit, :update, :destroy, :superbill, :hcfa ]
   before_action :set_patient
 
@@ -76,6 +77,13 @@ class EncountersController < ApplicationController
     @encounter = @current_organization.encounters.find(params[:id])
   end
 
+  def set_organization
+    @organization = Organization.find_by!(slug: params[:slug])
+  rescue ActiveRecord::RecordNotFound
+    # Safety: If slug is bad, go home
+    redirect_to root_path, alert: "Organization not found."
+  end
+
   def set_patient
     if @encounter
       # If we already found the encounter, the patient is attached to it!
@@ -91,9 +99,26 @@ class EncountersController < ApplicationController
 
   def encounter_params
     params.require(:encounter).permit(
-      :patient_id, :provider_id, :visit_date, :appointment_id,
-      :subjective, :objective, :assessment, :plan,
-      procedure_ids: [] # Allow the checkbox array
+      :patient_id,
+      :visit_date,
+      :provider_id,
+
+      # Nested Procedures
+      encounter_procedures_attributes: [
+        :id,
+        :cpt_code_search_value, # Virtual attribute for CPT search
+        :charge_amount,
+        :modifiers,
+        :_destroy
+      ],
+
+      # Nested Diagnoses
+      encounter_diagnoses_attributes: [
+        :id,
+        :icd_code,
+        :description,
+        :_destroy
+      ]
     )
   end
 end
