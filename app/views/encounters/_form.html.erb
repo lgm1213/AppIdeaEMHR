@@ -8,9 +8,10 @@
 
 <%= form_with(model: @encounter, 
               url: form_url, 
-              local: true, 
+              id: "encounter-form", 
               class: "space-y-8") do |form| %>
 
+  <%# --- 1. Error Messages --- %>
   <% if @encounter.errors.any? %>
     <div class="bg-red-50 p-4 rounded border border-red-200">
       <h4 class="text-red-800 font-bold mb-2">Please fix the following:</h4>
@@ -20,11 +21,11 @@
     </div>
   <% end %>
 
+  <%# --- 2. Header: Patient, Date, Provider --- %>
   <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-6">
     <div>
       <label class="block text-sm font-bold text-gray-700">Patient</label>
       <div class="mt-1 p-2 bg-gray-50 rounded border text-gray-800">
-        <%# Display generic name if patient is missing (for safety) %>
         <%= @encounter.patient&.first_name || "Unknown" %> <%= @encounter.patient&.last_name %>
       </div>
       <%= form.hidden_field :patient_id %>
@@ -37,7 +38,6 @@
 
     <div>
       <%= form.label :provider_id, "Provider", class: "block text-sm font-bold text-gray-700" %>
-      <%# FIX 1: Use the new display_name method %>
       <%= form.collection_select :provider_id, 
           @organization.providers, :id, :display_name, 
           {}, 
@@ -45,18 +45,34 @@
     </div>
   </div>
 
+  <%# --- 3. Vitals Section (New) --- %>
+  <%= form.fields_for :vital do |v| %>
+    <%= render "vitals_fields", f: v %>
+  <% end %>
+
+  <%# --- 4. SOAP Note: Subjective & Objective --- %>
+  <%# FIXED: Removed the duplicated nesting error here %>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
       <h3 class="text-lg font-bold text-gray-900 mb-4">Subjective</h3>
-      <%= form.text_area :subjective, rows: 5, class: "block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500", placeholder: "Patient complains of..." %>
+      <%= form.text_area :subjective, 
+          rows: 5, 
+          class: "block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500", 
+          placeholder: "Patient complains of..." 
+      %>
     </div>
 
     <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
       <h3 class="text-lg font-bold text-gray-900 mb-4">Objective</h3>
-      <%= form.text_area :objective, rows: 5, class: "block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500", placeholder: "Vitals, Exam findings..." %>
+      <%= form.text_area :objective, 
+          rows: 5, 
+          class: "block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500", 
+          placeholder: "Vitals, Exam findings..." 
+      %>
     </div>
   </div>
 
+  <%# --- 5. Assessment (Diagnoses) --- %>
   <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
     <h3 class="text-lg font-bold text-gray-900 mb-2">Assessment (Diagnoses)</h3>
     
@@ -80,6 +96,7 @@
     </div>
   </div>
 
+  <%# --- 6. Plan (Procedures) --- %>
   <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
     <h3 class="text-lg font-bold text-gray-900 mb-2">Plan (Procedures)</h3>
     
@@ -102,6 +119,7 @@
     </div>
   </div>
 
+  <%# --- 7. Finalize Button --- %>
   <div class="pt-4 pb-12">
     <%= form.submit "Finalize Encounter", 
       class: %w[

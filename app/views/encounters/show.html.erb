@@ -1,9 +1,10 @@
 <% content_for :title, "Encounter Details" %>
 
-<div class="max-w-4xl mx-auto px-4 py-8">
+<div class="max-w-5xl mx-auto px-4 py-8">
   
+  <%# --- 1. Flash Messages --- %>
   <% if notice.present? %>
-    <div class="rounded-md bg-green-50 p-4 mb-6 border border-green-200">
+    <div class="rounded-md bg-green-50 p-4 mb-6 border border-green-200 shadow-sm animate-fade-in-down">
       <div class="flex">
         <div class="flex-shrink-0">
           <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
@@ -17,18 +18,33 @@
     </div>
   <% end %>
 
+  <%# --- 2. Header Area --- %>
   <div class="md:flex md:items-center md:justify-between mb-8">
     <div class="min-w-0 flex-1">
-      <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-        Clinical Note
-      </h2>
+      <div class="flex items-center gap-3">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+          Clinical Note
+        </h2>
+        
+        <% if @encounter.finalized? %>
+          <span class="inline-flex items-center rounded-full bg-green-100 px-3 py-0.5 text-sm font-medium text-green-800 ring-1 ring-inset ring-green-600/20">
+            Finalized
+          </span>
+        <% else %>
+          <span class="inline-flex items-center rounded-full bg-yellow-100 px-3 py-0.5 text-sm font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
+            Draft
+          </span>
+        <% end %>
+      </div>
+      
       <p class="mt-1 text-sm text-gray-500">
-        Visit Date: <%= @encounter.visit_date.strftime("%B %d, %Y") %>
+        <%= @encounter.provider.display_name %> • <%= @encounter.visit_date.strftime("%B %d, %Y") %>
       </p>
     </div>
     
+    <%# --- 3. Action Buttons --- %>
     <div class="mt-4 flex flex-shrink-0 md:ml-4 md:mt-0 gap-3">
-      <%= link_to "Back to Patient", patient_path(slug: @current_organization.slug, id: @encounter.patient.id, tab: 'clinical'), 
+      <%= link_to "Back to Chart", patient_path(slug: @current_organization.slug, id: @encounter.patient.id, tab: 'clinical'), 
           class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" 
       %>
 
@@ -55,7 +71,6 @@
               <span class="font-bold block">Digital Copy</span>
               <span class="text-xs text-gray-500">Includes form background</span>
             <% end %>
-            
             <%= link_to hcfa_encounter_path(slug: @current_organization.slug, id: @encounter.id, mode: 'print'), target: "_blank", class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
               <span class="font-bold block">Printer Copy</span>
               <span class="text-xs text-gray-500">Text only (For red forms)</span>
@@ -64,16 +79,148 @@
         </div>
       </div>
 
-      <%= link_to "Edit Note", edit_encounter_path(slug: @current_organization.slug, id: @encounter.id), 
-          class: "inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" 
-      %>
+      <%= link_to edit_encounter_path(slug: @current_organization.slug, id: @encounter.id), 
+          class: "inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 #{ @encounter.finalized? ? 'bg-gray-600 hover:bg-gray-500' : 'bg-indigo-600 hover:bg-indigo-500' }" do %>
+          
+          <% if @encounter.finalized? %>
+            Make Corrections
+          <% else %>
+            Continue Editing
+          <% end %>
+      <% end %>
     </div>
   </div>
 
-  <div class="bg-white shadow sm:rounded-lg border border-gray-200 p-6">
-    <%= render partial: "encounters/encounter", locals: { encounter: @encounter } %>
+  <%# --- 4. Clinical Data Summary --- %>
+  <div class="bg-white shadow sm:rounded-lg border border-gray-200 overflow-hidden">
+    
+    <%# --- NEW: Vitals Display --- %>
+    <% if @encounter.vital.present? %>
+      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 grid grid-cols-2 md:grid-cols-6 gap-4">
+        <div>
+          <span class="block text-xs font-bold text-gray-500 uppercase">BP</span>
+          <span class="text-sm font-medium text-gray-900">
+            <%= @encounter.vital.bp_systolic.present? ? "#{@encounter.vital.bp_systolic}/#{@encounter.vital.bp_diastolic}" : "—" %>
+          </span>
+        </div>
+        <div>
+          <span class="block text-xs font-bold text-gray-500 uppercase">Pulse</span>
+          <span class="text-sm font-medium text-gray-900"><%= @encounter.vital.heart_rate || "—" %> <span class="text-gray-500 text-xs">bpm</span></span>
+        </div>
+        <div>
+          <span class="block text-xs font-bold text-gray-500 uppercase">Resp</span>
+          <span class="text-sm font-medium text-gray-900"><%= @encounter.vital.resp_rate || "—" %></span>
+        </div>
+        <div>
+          <span class="block text-xs font-bold text-gray-500 uppercase">Temp</span>
+          <span class="text-sm font-medium text-gray-900"><%= @encounter.vital.temp_f || "—" %> <span class="text-gray-500 text-xs">°F</span></span>
+        </div>
+        <div>
+          <span class="block text-xs font-bold text-gray-500 uppercase">O2 Sat</span>
+          <span class="text-sm font-medium text-gray-900"><%= @encounter.vital.o2_sat ? "#{@encounter.vital.o2_sat}%" : "—" %></span>
+        </div>
+        <div>
+          <span class="block text-xs font-bold text-gray-500 uppercase">BMI</span>
+          <% bmi = @encounter.vital.bmi %>
+          <% if bmi %>
+            <% color_class = if bmi < 18.5
+                               "text-blue-700 bg-blue-50"
+                             elsif bmi >= 30
+                               "text-red-700 bg-red-50"
+                             elsif bmi >= 25
+                               "text-yellow-700 bg-yellow-50"
+                             else
+                               "text-gray-900 bg-gray-100"
+                             end %>
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= color_class %>">
+              <%= bmi %>
+            </span>
+          <% else %>
+            <span class="text-sm text-gray-500">—</span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x border-b border-gray-200">
+      <div class="p-6">
+        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Subjective</h3>
+        <div class="prose prose-sm text-gray-900 max-w-none">
+          <%= simple_format(@encounter.subjective.presence || "No subjective notes recorded.") %>
+        </div>
+      </div>
+      <div class="p-6">
+        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Objective</h3>
+        <div class="prose prose-sm text-gray-900 max-w-none">
+          <%= simple_format(@encounter.objective.presence || "No objective notes recorded.") %>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6 bg-gray-50">
+      <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">Assessment & Plan</h3>
+      
+      <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Charge / Info</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @encounter.encounter_diagnoses.each do |dx| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Diagnosis</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900"><%= dx.icd_code %></td>
+                <td class="px-6 py-4 text-sm text-gray-500"><%= dx.description %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">—</td>
+              </tr>
+            <% end %>
+
+            <% @encounter.encounter_procedures.each do |proc| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Procedure</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900"><%= proc.procedure.code %></td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                  <%= proc.procedure.name %>
+                  <% if proc.modifiers.present? %>
+                    <span class="ml-2 inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">
+                      Mods: <%= proc.modifiers %>
+                    </span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-mono font-medium text-gray-900">
+                  <%= number_to_currency(proc.charge_amount) %>
+                </td>
+              </tr>
+            <% end %>
+
+            <% if @encounter.encounter_diagnoses.empty? && @encounter.encounter_procedures.empty? %>
+              <tr>
+                <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-400 italic">
+                  No codes or procedures added yet.
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+          
+          <tfoot class="bg-gray-50">
+            <tr>
+              <td colspan="3" class="px-6 py-3 text-right text-sm font-bold text-gray-900">Total Charges:</td>
+              <td class="px-6 py-3 text-right text-sm font-bold text-indigo-600 font-mono">
+                <%= number_to_currency(@encounter.encounter_procedures.sum(:charge_amount)) %>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
   </div>
 
+  <%# --- 5. Delete Action --- %>
   <div class="mt-8 pt-6 border-t border-gray-100 flex justify-end">
     <%= button_to "Delete Entry", encounter_path(slug: @current_organization.slug, id: @encounter.id), 
         method: :delete, 

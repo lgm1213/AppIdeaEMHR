@@ -1,33 +1,31 @@
 class EncounterProcedure < ApplicationRecord
   belongs_to :encounter
-  belongs_to :procedure # The practice-specific record
+  belongs_to :procedure
 
-  # Virtual attributes for the form to "talk" to
+  # Virtual attribute to capture raw input from the form
   attr_accessor :cpt_code_search_value
 
-  # Before validation, find or create the Procedure record
-  before_validation :resolve_procedure_from_code
+  validates :procedure, presence: { message: "could not be found from the code provided" }
+  validates :charge_amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+
+  before_validation :resolve_procedure_from_search_value
 
   private
 
-  def resolve_procedure_from_code
-    # If the user selected a code from the search bar (e.g. "99213")
-    if cpt_code_search_value.present?
+  def resolve_procedure_from_search_value
+    # Skips if nothing was typed (avoids errors on empty rows)
+    return if cpt_code_search_value.blank?
 
-      # Step A: Find the Master CPT data (for description)
-      master_cpt = CptCode.find_by(code: cpt_code_search_value)
+    # Parse "99213 - Office Visit" -> "99213"
+    clean_code = cpt_code_search_value.split(" - ").first.strip
 
-      # Step B: Find or Create the Practice-Specific Procedure
-      # We use the organization from the parent encounter
-      org_id = encounter.organization_id
+    # Finds the procedure within the organization
+    if encounter&.organization_id
+      found_procedure = Procedure.find_by(organization_id: encounter.organization_id, code: clean_code)
 
-      self.procedure = Procedure.find_or_create_by!(
-        organization_id: org_id,
-        code: cpt_code_search_value
-      ) do |new_proc|
-        # If we are creating it for the first time, set defaults:
-        new_proc.name = master_cpt&.description || "Custom Procedure"
-        new_proc.price = 0.00 # Practice can update price later
+      if found_procedure
+        self.procedure = found_procedure
+        self.charge_amount ||= found_procedure.price
       end
     end
   end

@@ -9,7 +9,8 @@
       %>
       <%= f.text_field :icd_code, 
         class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm", 
-        placeholder: "Type diagnosis (e.g. Cough, R05)" 
+        placeholder: "Type diagnosis (e.g. Cough, R05)",
+        data: { action: "keydown->nested-form#stopEnter" }
       %>
     </div>
 

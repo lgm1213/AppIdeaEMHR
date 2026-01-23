@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_20_182901) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_22_162952) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -148,6 +148,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_20_182901) do
     t.uuid "patient_id", null: false
     t.text "plan"
     t.uuid "provider_id", null: false
+    t.integer "status", default: 0, null: false
     t.text "subjective"
     t.datetime "updated_at", null: false
     t.datetime "visit_date"
@@ -312,6 +313,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_20_182901) do
     t.index ["patient_id"], name: "index_versions_on_patient_id"
   end
 
+  create_table "vitals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.decimal "bmi"
+    t.integer "bp_diastolic"
+    t.integer "bp_systolic"
+    t.datetime "created_at", null: false
+    t.uuid "encounter_id", null: false
+    t.integer "heart_rate"
+    t.decimal "height_inches"
+    t.integer "o2_sat"
+    t.integer "resp_rate"
+    t.decimal "temp_f"
+    t.datetime "updated_at", null: false
+    t.decimal "weight_lbs"
+    t.index ["encounter_id"], name: "index_vitals_on_encounter_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "allergies", "patients"
@@ -345,4 +362,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_20_182901) do
   add_foreign_key "providers", "users"
   add_foreign_key "sessions", "users"
   add_foreign_key "users", "organizations"
+  add_foreign_key "vitals", "encounters"
 end

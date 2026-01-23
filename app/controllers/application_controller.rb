@@ -4,8 +4,6 @@ class ApplicationController < ActionController::Base
 
   before_action :require_authentication
   before_action :authorize_tenant!, if: -> { params[:slug].present? }
-
-  # Papertrail Audit Log
   before_action :set_paper_trail_whodunnit
 
   def default_url_options
@@ -16,16 +14,15 @@ class ApplicationController < ActionController::Base
 
   def authorize_tenant!
     @current_organization = Organization.find_by!(slug: params[:slug])
-    # If no user is logged in, we shouldn't be checking IDs. The require_authentication filter will handle the redirect if needed.
 
     return unless Current.user
+
     unless Current.user.organization_id == @current_organization.id
-      redirect_to root_path, alert: "You are not authorized to access the #{@current_organization.name} practice."
+      redirect_to root_path(slug: nil), alert: "You are not authorized to access this practice."
     end
 
-
   rescue ActiveRecord::RecordNotFound
-    redirect_to root_path, alert: "Practice not found."
+    redirect_to root_path(slug: nil), alert: "Practice not found."
   end
 
   def user_for_paper_trail

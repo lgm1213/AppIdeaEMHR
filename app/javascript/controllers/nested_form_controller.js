@@ -5,7 +5,6 @@ export default class extends Controller {
 
   add(e) {
     e.preventDefault()
-    // Replace NEW_RECORD with a unique timestamp so Rails treats it as a new item
     const content = this.templateTarget.innerHTML.replace(/NEW_RECORD/g, new Date().getTime())
     this.targetTarget.insertAdjacentHTML('beforeend', content)
   }
@@ -21,6 +20,13 @@ export default class extends Controller {
       // If it's an existing DB record, hide it and mark for deletion
       wrapper.style.display = 'none'
       wrapper.querySelector("input[name*='_destroy']").value = 1
+    }
+  }
+
+  saveOnEnter(e) {
+    if (e.key === "Enter") {
+      e.preventDefault()
+      this.element.closest("form").requestSubmit()
     }
   }
 }

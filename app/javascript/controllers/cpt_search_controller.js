@@ -1,20 +1,43 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  // These targets match the 'data-cpt-search-target' attributes in your HTML
-  static targets = ["input", "results", "hiddenCodeField", "hiddenNameField"]
+  static targets = ["input", "results", "hiddenCodeField"]
 
   connect() {
-    // Clicks outside to close the dropdown
-    document.addEventListener("click", (event) => {
+    this.clickOutsideHandler = (event) => {
       if (!this.element.contains(event.target)) {
         this.resultsTarget.classList.add("hidden")
       }
-    })
+    }
+    document.addEventListener("click", this.clickOutsideHandler)
   }
 
-  // Triggered by 'input' event on the text box
+  disconnect() {
+    document.removeEventListener("click", this.clickOutsideHandler)
+  }
+
+  // Copies the visible input value to the hidden field immediately
+  sync() {
+    this.hiddenCodeFieldTarget.value = this.inputTarget.value
+  }
+
+  // Handles the Enter key exclusively for the CPT input.
+  // Guaranteed order: 1. Sync data -> 2. Submit form
+  commit(event) {
+    if (event.key === "Enter") {
+      event.preventDefault()
+      
+      // 1. Force the sync immediately
+      this.sync()
+      
+      // 2. Manually submit the form
+      this.element.closest("form").requestSubmit()
+    }
+  }
+
   search() {
+    this.sync() // Also sync while typing normally
+    
     clearTimeout(this.timeout)
     // Debounce: Wait 300ms after user stops typing to save server requests
     this.timeout = setTimeout(() => {
@@ -25,13 +48,11 @@ export default class extends Controller {
   fetchResults() {
     const query = this.inputTarget.value
     
-    // Don't search if the input is too short or empty
     if (query.length < 2) {
       this.resultsTarget.classList.add("hidden")
       return
     }
 
-    // Calls the backend endpoint
     fetch(`/cpt_codes?query=${encodeURIComponent(query)}`, {
       headers: { "Accept": "application/json" }
     })
@@ -62,26 +83,16 @@ export default class extends Controller {
       `).join("")
     }
     
-    // Show the list
     this.resultsTarget.classList.remove("hidden")
   }
 
-  // Triggered when clicking a dropdown item
   select(event) {
-    // Get data from the clicked element
-    // Note: used .closest('li') to ensure we grab the data even if user clicked a child span
     const item = event.target.closest("li")
     const code = item.dataset.code
     const name = item.dataset.name
     
-    // Updates the visible input so the user sees what they picked
     this.inputTarget.value = `${code} - ${name}`
-    
-    // Updates the hidden fields (This is what actually submits to Rails)
     this.hiddenCodeFieldTarget.value = code
-    this.hiddenNameFieldTarget.value = name
-    
-    // Hides the dropdown
     this.resultsTarget.classList.add("hidden")
   }
 }
