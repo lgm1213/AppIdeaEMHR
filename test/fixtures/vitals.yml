@@ -1,25 +1,25 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  encounter: one
-  height_inches: 9.99
-  weight_lbs: 9.99
-  temp_f: 9.99
-  bp_systolic: 1
-  bp_diastolic: 1
-  heart_rate: 1
-  resp_rate: 1
-  o2_sat: 1
-  bmi: 9.99
+  encounter: one # Links to encounter 'one'
+  height_inches: 70
+  weight_lbs: 170
+  temp_f: 98.6
+  bp_systolic: 120
+  bp_diastolic: 80
+  heart_rate: 70
+  resp_rate: 16
+  o2_sat: 98
+  bmi: 24.39
 
 two:
   encounter: two
-  height_inches: 9.99
-  weight_lbs: 9.99
-  temp_f: 9.99
-  bp_systolic: 1
-  bp_diastolic: 1
-  heart_rate: 1
-  resp_rate: 1
-  o2_sat: 1
-  bmi: 9.99
+  height_inches: 65
+  weight_lbs: 150
+  temp_f: 98.4
+  bp_systolic: 118
+  bp_diastolic: 78
+  heart_rate: 72
+  resp_rate: 18
+  o2_sat: 97
+  bmi: 24.96

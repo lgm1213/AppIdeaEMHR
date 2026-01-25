@@ -5,7 +5,7 @@ class OrganizationsControllerTest < ActionDispatch::IntegrationTest
     @organization = organizations(:one)
     # We need a superadmin to access these routes
     @user = users(:superadmin)
-    post session_url, params: { email_address: @user.email_address, password: "password123" }
+    post session_url, params: { email_address: @user.email_address, password: "password" }
   end
 
   test "should get index" do

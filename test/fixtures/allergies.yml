@@ -1,15 +1,11 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
   patient: one
-  name: MyString
-  reaction: MyString
-  severity: MyString
-  status: MyString
+  name: "Peanuts"   # Matches DB column name
+  severity: mild    # Lowercase
+  status: active    # Lowercase
 
 two:
   patient: two
-  name: MyString
-  reaction: MyString
-  severity: MyString
-  status: MyString
+  name: "Penicillin"
+  severity: severe  # Lowercase
+  status: active    # Lowercase

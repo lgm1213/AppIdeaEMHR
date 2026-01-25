@@ -1,18 +1,19 @@
-# test/fixtures/appointments.yml
 one:
+  organization: one
   patient: one
   provider: one
-  organization: one
-  start_time: <%= 1.day.from_now.change(hour: 9, min: 0) %>
-  end_time: <%= 1.day.from_now.change(hour: 9, min: 30) %>
-  status: 1 # scheduled
-  reason: "Annual Checkup"
+  start_time: "2027-01-01 10:00:00"
+  end_time: "2027-01-01 10:30:00"
+  duration_minutes: 30
+  status: scheduled
+  reason: "Checkup"
 
 two:
+  organization: one
   patient: two
   provider: one
-  organization: one
-  start_time: <%= 1.day.from_now.change(hour: 10, min: 0) %>
-  end_time: <%= 1.day.from_now.change(hour: 10, min: 30) %>
-  status: 1
-  reason: "Follow up"
+  start_time: "2027-01-02 14:00:00"
+  end_time: "2027-01-02 14:15:00"
+  duration_minutes: 15
+  status: scheduled
+  reason: "Follow Up"

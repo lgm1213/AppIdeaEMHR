@@ -1,9 +1,11 @@
 one:
-  name: "Health Clinic One"
+  name: "Clinic One"
   slug: "clinic-one"
-  plan: "free"
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
 
 two:
-  name: "Health Clinic Two"
+  name: "Clinic Two"
   slug: "clinic-two"
-  plan: "premium"
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>

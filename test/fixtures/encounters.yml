@@ -1,21 +1,19 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
+  organization: one
   patient: one
   provider: one
-  organization: one
-  visit_date: 2026-01-13 16:19:19
-  subjective: MyText
-  objective: MyText
-  assessment: MyText
-  plan: MyText
+  appointment: one
+  visit_date: <%= Date.yesterday %>
+  status: draft
+  subjective: "Patient complains of headache."
+  objective: "BP 120/80"
+  assessment: "Tension headache"
+  plan: "Rest and fluids"
 
 two:
+  organization: one
   patient: two
-  provider: two
-  organization: two
-  visit_date: 2026-01-13 16:19:19
-  subjective: MyText
-  objective: MyText
-  assessment: MyText
-  plan: MyText
+  provider: one
+  appointment: two
+  visit_date: <%= Date.today %>
+  status: in_progress

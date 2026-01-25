@@ -9,7 +9,7 @@ class FacilitiesControllerTest < ActionDispatch::IntegrationTest
 
     # Simulate logging in (assuming you have a helper or need to post to session)
     # If using your SessionController logic:
-    post session_url, params: { email_address: @user.email_address, password: "password123" }
+    post session_url, params: { email_address: @user.email_address, password: "password" }
   end
 
   test "should get index" do

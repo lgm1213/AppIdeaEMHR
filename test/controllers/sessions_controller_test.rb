@@ -9,8 +9,8 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create with valid credentials" do
-    # Use 'password123' to match your updated fixtures
-    post session_path, params: { email_address: @user.email_address, password: "password123" }
+    # Use 'password' to match your updated fixtures
+    post session_path, params: { email_address: @user.email_address, password: "password" }
 
     # Adjust expected redirect if your app goes to dashboard instead of root
     assert_redirected_to practice_dashboard_url(slug: @user.organization.slug)
@@ -25,7 +25,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
   test "destroy" do
     # Log in first
-    post session_path, params: { email_address: @user.email_address, password: "password123" }
+    post session_path, params: { email_address: @user.email_address, password: "password" }
 
     delete session_path
     assert_redirected_to new_session_path

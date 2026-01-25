@@ -6,7 +6,7 @@ class PatientsControllerTest < ActionDispatch::IntegrationTest
     @organization = @patient.organization
 
     @user = users(:one)
-    post session_url, params: { email_address: @user.email_address, password: "password123" }
+    post session_url, params: { email_address: @user.email_address, password: "password" }
   end
 
   test "should get index" do

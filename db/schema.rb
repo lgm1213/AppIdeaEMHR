@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_22_162952) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_24_032855) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -56,6 +56,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_22_162952) do
 
   create_table "appointments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.integer "duration_minutes"
     t.datetime "end_time"
     t.uuid "organization_id", null: false
     t.uuid "patient_id", null: false
@@ -64,8 +65,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_22_162952) do
     t.datetime "start_time"
     t.integer "status"
     t.datetime "updated_at", null: false
+    t.index ["organization_id", "start_time"], name: "index_appointments_on_org_and_start_time"
+    t.index ["organization_id", "status"], name: "index_appointments_on_org_and_status"
     t.index ["organization_id"], name: "index_appointments_on_organization_id"
+    t.index ["patient_id", "start_time"], name: "index_appointments_on_patient_and_start_time"
     t.index ["patient_id"], name: "index_appointments_on_patient_id"
+    t.index ["provider_id", "start_time"], name: "index_appointments_on_provider_and_start_time"
     t.index ["provider_id"], name: "index_appointments_on_provider_id"
   end
 
@@ -148,14 +153,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_22_162952) do
     t.uuid "patient_id", null: false
     t.text "plan"
     t.uuid "provider_id", null: false
+    t.datetime "signed_at"
+    t.uuid "signed_by_id"
     t.integer "status", default: 0, null: false
     t.text "subjective"
     t.datetime "updated_at", null: false
     t.datetime "visit_date"
     t.index ["appointment_id"], name: "index_encounters_on_appointment_id"
+    t.index ["organization_id", "status"], name: "index_encounters_on_organization_id_and_status"
     t.index ["organization_id"], name: "index_encounters_on_organization_id"
+    t.index ["patient_id", "visit_date"], name: "index_encounters_on_patient_and_visit_date"
     t.index ["patient_id"], name: "index_encounters_on_patient_id"
     t.index ["provider_id"], name: "index_encounters_on_provider_id"
+    t.index ["signed_by_id"], name: "index_encounters_on_signed_by_id"
+    t.index ["status"], name: "index_encounters_on_status"
   end
 
   create_table "facilities", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -222,6 +233,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_22_162952) do
     t.datetime "updated_at", null: false
     t.index ["organization_id"], name: "index_messages_on_organization_id"
     t.index ["patient_id"], name: "index_messages_on_patient_id"
+    t.index ["recipient_id", "read_at"], name: "index_messages_on_recipient_and_read_at"
     t.index ["recipient_id"], name: "index_messages_on_recipient_id"
     t.index ["sender_id"], name: "index_messages_on_sender_id"
   end
@@ -249,6 +261,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_22_162952) do
     t.string "street_address"
     t.datetime "updated_at", null: false
     t.string "zip_code"
+    t.index ["organization_id", "last_name", "first_name"], name: "index_patients_on_org_and_name"
     t.index ["organization_id"], name: "index_patients_on_organization_id"
   end
 
@@ -303,13 +316,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_22_162952) do
   create_table "versions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at"
     t.string "event", null: false
+    t.string "ip_address"
     t.uuid "item_id", null: false
     t.string "item_type", null: false
     t.text "object"
     t.text "object_changes"
+    t.uuid "organization_id"
     t.uuid "patient_id"
+    t.string "user_agent"
     t.string "whodunnit"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
+    t.index ["organization_id"], name: "index_versions_on_organization_id"
     t.index ["patient_id"], name: "index_versions_on_patient_id"
   end
 
@@ -348,6 +365,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_22_162952) do
   add_foreign_key "encounters", "organizations"
   add_foreign_key "encounters", "patients"
   add_foreign_key "encounters", "providers"
+  add_foreign_key "encounters", "users", column: "signed_by_id"
   add_foreign_key "facilities", "organizations"
   add_foreign_key "labs", "patients"
   add_foreign_key "medications", "patients"

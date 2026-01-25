@@ -10,7 +10,7 @@ one:
 
 two:
   user: one           # Admin user can technically be a provider too in tests
-  organization: one
+  organization: two
   npi: "0987654321"
   license_number: "LIC-002"
   dea_number: "DEA-002"

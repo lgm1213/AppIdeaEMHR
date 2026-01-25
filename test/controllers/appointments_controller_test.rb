@@ -2,10 +2,12 @@ require "test_helper"
 
 class AppointmentsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @appointment = appointments(:one)
-    @organization = @appointment.organization
+    @organization = organizations(:one)
     @user = users(:one)
-    post session_url, params: { email_address: @user.email_address, password: "password123" }
+    login_as(@user)
+    @appointment = appointments(:one)
+    @patient = patients(:one)
+    @provider = providers(:one)
   end
 
   test "should get index" do
@@ -19,21 +21,22 @@ class AppointmentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create appointment" do
+    start = Time.current + 1.day
     assert_difference("Appointment.count") do
       post appointments_url(slug: @organization.slug), params: {
         appointment: {
-          end_time: @appointment.end_time,
-          patient_id: @appointment.patient_id,
-          provider_id: @appointment.provider_id,
-          reason: @appointment.reason,
-          start_time: @appointment.start_time,
-          status: @appointment.status
+          patient_id: @patient.id,
+          provider_id: @provider.id,
+          start_time: start,
+          end_time: start + 30.minutes,
+          duration_minutes: 30,
+          status: "scheduled",
+          reason: "Checkup"
         }
       }
     end
 
-    # Expect redirect with date param
-    assert_redirected_to appointments_url(slug: @organization.slug, date: @appointment.start_time.to_date)
+    assert_redirected_to appointments_url(slug: @organization.slug, date: start.to_date)
   end
 
   test "should show appointment" do
@@ -48,7 +51,7 @@ class AppointmentsControllerTest < ActionDispatch::IntegrationTest
 
   test "should update appointment" do
     patch appointment_url(slug: @organization.slug, id: @appointment.id), params: {
-      appointment: { reason: "Updated Reason" }
+      appointment: { reason: "Updated Reason", status: "scheduled" }
     }
     # Expect redirect to Index with date param
     assert_redirected_to appointments_url(slug: @organization.slug, date: @appointment.start_time.to_date)
@@ -61,5 +64,11 @@ class AppointmentsControllerTest < ActionDispatch::IntegrationTest
 
     # Expect redirect with date param
     assert_redirected_to appointments_url(slug: @organization.slug, date: @appointment.start_time.to_date)
+  end
+
+  def login_as(user)
+    # This simulates a logged-in session for Rails 8 Authentication
+    # Ensure your password matches what is in your fixtures!
+    post session_url, params: { email_address: user.email_address, password: "password" }
   end
 end

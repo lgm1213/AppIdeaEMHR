@@ -8,7 +8,7 @@ class EncountersControllerTest < ActionDispatch::IntegrationTest
 
     # Simulate login
     @user = users(:one)
-    post session_url, params: { email_address: @user.email_address, password: "password123" }
+    post session_url, params: { email_address: @user.email_address, password: "password" }
   end
 
   test "should get index" do

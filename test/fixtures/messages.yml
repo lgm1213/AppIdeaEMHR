@@ -1,21 +1,19 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# test/fixtures/messages.yml
 
 one:
   organization: one
   sender: one
-  recipient: one
-  patient: one
-  category: MyString
-  subject: MyString
-  body: MyText
-  read_at: 2026-01-16 16:49:54
+  recipient: two
+  body: "Hello, Dr. Smith"
+  read_at: <%= Time.current %>
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
 
 two:
-  organization: two
+  organization: one
   sender: two
-  recipient: two
-  patient: two
-  category: MyString
-  subject: MyString
-  body: MyText
-  read_at: 2026-01-16 16:49:54
+  recipient: one
+  body: "Patient is ready in Room 3" 
+  read_at: nil
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>

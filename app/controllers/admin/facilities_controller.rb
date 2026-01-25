@@ -36,11 +36,11 @@ module Admin
     private
 
     def set_organization
-      @organization = Organization.find(params[:organization_id])
+      @organization = Organization.find_by!(slug: params[:id])
     end
 
     def set_facility
-      @facility = @organization.facilities.find(params[:id])
+      @facility = @organization.facilities.find_by!(slug: params[:id])
     end
 
     def facility_params

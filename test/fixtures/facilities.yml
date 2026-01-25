@@ -1,13 +1,23 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# test/fixtures/facilities.yml
 
 one:
-  organization: one
-  name: MyString
-  phone: MyString
-  address: MyText
+  organization: one  # <--- This connects it to the Organization fixture
+  name: "Main Clinic"
+  address: "123 Medical Way"
+  city: "Miami"
+  state: "FL"
+  zip_code: "33101"
+  phone: "555-555-5555"
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
 
 two:
-  organization: two
-  name: MyString
-  phone: MyString
-  address: MyText
+  organization: one
+  name: "Downtown Branch"
+  address: "456 Downtown Blvd"
+  city: "Miami"
+  state: "FL"
+  zip_code: "33130"
+  phone: "555-555-5556"
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>

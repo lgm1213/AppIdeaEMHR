@@ -1,13 +1,17 @@
 # test/fixtures/procedures.yml
 
-one:
-  code: "99213"          # Unique Code
-  name: "Office Visit, Level 3"
-  price: "150.00"
-  organization: one
+visit:
+  organization: one  # <--- Must match organizations.yml
+  code: "99213"
+  name: "Office Visit - Level 3"
+  price: 150.00
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
 
-two:
-  code: "99214"          # Unique Code (Must be different from 'one')
-  name: "Office Visit, Level 4"
-  price: "200.00"
+draw:
   organization: one
+  code: "36415"
+  name: "Venipuncture"
+  price: 25.00
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>

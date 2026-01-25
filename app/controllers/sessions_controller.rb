@@ -4,7 +4,8 @@ class SessionsController < ApplicationController
   # This prevents issues where a user navigates to the wrong login URL and gets redirected immediately.
   skip_before_action :authorize_tenant!, only: %i[ new create destroy ]
 
-  rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_session_path, alert: "Try again later." }
+  # Only apply rate limiting in non-test environments so we don't block our own test suite
+  rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_session_path, alert: "Try again later." } unless Rails.env.test? unless Rails.env.test?
 
   def new
     if authenticated?

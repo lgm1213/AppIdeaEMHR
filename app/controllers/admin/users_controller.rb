@@ -64,7 +64,7 @@ module Admin
 
     def set_organization
       if params[:organization_id]
-        @organization = Organization.find(params[:organization_id])
+        @organization = Organization.find_by!(slug: params[:id])
       end
     end
 

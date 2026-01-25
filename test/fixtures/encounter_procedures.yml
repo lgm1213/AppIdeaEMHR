@@ -1,11 +1,8 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# test/fixtures/encounter_procedures.yml
 
 one:
   encounter: one
-  procedure: one
-  charge_amount: 9.99
-
-two:
-  encounter: two
-  procedure: two
-  charge_amount: 9.99
+  procedure: visit  # <--- This must match the key 'visit' in procedures.yml
+  charge_amount: 150.00
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>

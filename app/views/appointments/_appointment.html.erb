@@ -18,7 +18,7 @@
     <div class="sm:col-span-1">
       <dt class="text-sm font-medium text-gray-500">Time</dt>
       <dd class="mt-1 text-sm text-gray-900">
-        <%= appointment.start_time.strftime("%l:%M %p") %> - <%= appointment.end_time.strftime("%l:%M %p") %>
+        <%= appointment.start_time&.strftime("%l:%M %p") %> - <%= appointment.end_time&.strftime("%l:%M %p") %>
       </dd>
     </div>
 
