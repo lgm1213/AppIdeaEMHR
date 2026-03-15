@@ -10,36 +10,19 @@ class DocumentsController < ApplicationController
   def create
     files = params[:documents] || (params[:patient] && params[:patient][:documents])
 
-    if files.present?
-      saved_count = 0
-      error_messages = []
+    if files.blank?
+      return redirect_to patient_path(slug: @current_organization.slug, id: @patient.id),
+                         alert: "No files selected.", status: :see_other
+    end
 
-      # Ensure files is an array (in case of single file upload)
-      files = [ files ] unless files.is_a?(Array)
+    result = DocumentUploadService.new(patient: @patient, uploader: Current.user, files: files).call
 
-      files.each do |file|
-        next if file.is_a?(String)
-
-        doc = @patient.documents.new(
-          file: file,
-          uploader: Current.user
-        )
-
-        if doc.save
-          saved_count += 1
-        else
-          error_messages << "#{file.original_filename}: #{doc.errors.full_messages.join(', ')}"
-        end
-      end
-
-      if saved_count > 0
-        redirect_to patient_path(slug: @current_organization.slug, id: @patient.id), notice: "#{saved_count} file(s) uploaded successfully.", status: :see_other
-      else
-        redirect_to patient_path(slug: @current_organization.slug, id: @patient.id), alert: "Upload failed: #{error_messages.join(' | ')}", status: :see_other
-      end
-
+    if result.success?
+      redirect_to patient_path(slug: @current_organization.slug, id: @patient.id),
+                  notice: "#{result.saved_count} file(s) uploaded successfully.", status: :see_other
     else
-      redirect_to patient_path(slug: @current_organization.slug, id: @patient.id), alert: "No files selected.", status: :see_other
+      redirect_to patient_path(slug: @current_organization.slug, id: @patient.id),
+                  alert: "Upload failed: #{result.errors.join(' | ')}", status: :see_other
     end
   end
 

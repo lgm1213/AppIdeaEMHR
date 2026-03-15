@@ -10,4 +10,8 @@ class Message < ApplicationRecord
   # Scopes for easy filtering
   scope :unread, -> { where(read_at: nil) }
   scope :chronological, -> { order(created_at: :desc) }
+
+  def mark_as_read!(reader)
+    update(read_at: Time.current) if recipient_id == reader.id && read_at.nil?
+  end
 end

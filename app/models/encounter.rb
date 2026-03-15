@@ -131,10 +131,6 @@ class Encounter < ApplicationRecord
     completed? || signed? || amended?
   end
 
-  def total_charges
-    encounter_procedures.sum(:charge_amount)
-  end
-
   private
 
   def build_default_vital

@@ -22,7 +22,7 @@ module Admin
     def create
       # Initialize with safe params
       @user = @organization.users.build(user_params)
-      @user.password ||= "Temporary123!"
+      @user.password ||= ENV.fetch("DEFAULT_TEMP_PASSWORD", SecureRandom.hex(12))
 
       # Manual Role Assignment
       if params[:user][:role].present?
@@ -64,7 +64,7 @@ module Admin
 
     def set_organization
       if params[:organization_id]
-        @organization = Organization.find_by!(slug: params[:id])
+        @organization = Organization.find_by!(slug: params[:organization_id])
       end
     end
 

@@ -15,10 +15,7 @@ class MessagesController < ApplicationController
                       .where("sender_id = ? OR recipient_id = ?", Current.user.id, Current.user.id)
                       .first!
 
-    # Logic: Only mark as read if I am the RECIPIENT (and it's unread)
-    if @message.recipient_id == Current.user.id && @message.read_at.nil?
-      @message.update(read_at: Time.current)
-    end
+    @message.mark_as_read!(Current.user)
   end
 
   def new

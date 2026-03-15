@@ -123,16 +123,7 @@
           <span class="block text-xs font-bold text-gray-500 uppercase">BMI</span>
           <% bmi = @encounter.vital.bmi %>
           <% if bmi %>
-            <% color_class = if bmi < 18.5
-                               "text-blue-700 bg-blue-50"
-                             elsif bmi >= 30
-                               "text-red-700 bg-red-50"
-                             elsif bmi >= 25
-                               "text-yellow-700 bg-yellow-50"
-                             else
-                               "text-gray-900 bg-gray-100"
-                             end %>
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= color_class %>">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= bmi_color_class(bmi) %>">
               <%= bmi %>
             </span>
           <% else %>

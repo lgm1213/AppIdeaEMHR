@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  ACTIVE_SESSION_WINDOW = 30.days
   has_secure_password
 
   # ===========================================================================
@@ -46,7 +47,7 @@ class User < ApplicationRecord
   # ===========================================================================
   # Scopes
   # ===========================================================================
-  scope :active, -> { joins(:sessions).where("sessions.created_at > ?", 30.days.ago).distinct }
+  scope :active, -> { joins(:sessions).where("sessions.created_at > ?", ACTIVE_SESSION_WINDOW.ago).distinct }
   scope :by_organization, ->(org) { where(organization: org) }
   scope :clinical_staff, -> { where(role: [ :provider, :admin ]) }
 

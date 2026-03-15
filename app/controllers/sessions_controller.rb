@@ -5,7 +5,7 @@ class SessionsController < ApplicationController
   skip_before_action :authorize_tenant!, only: %i[ new create destroy ]
 
   # Only apply rate limiting in non-test environments so we don't block our own test suite
-  rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_session_path, alert: "Try again later." } unless Rails.env.test? unless Rails.env.test?
+  rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_session_path, alert: "Try again later." } unless Rails.env.test?
 
   def new
     if authenticated?

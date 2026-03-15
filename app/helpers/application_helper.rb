@@ -205,6 +205,32 @@ module ApplicationHelper
   end
 
   # ===========================================================================
+  # Clinical Display Helpers
+  # ===========================================================================
+
+  BMI_UNDERWEIGHT_THRESHOLD  = 18.5
+  BMI_OVERWEIGHT_THRESHOLD   = 25.0
+  BMI_OBESE_THRESHOLD        = 30.0
+
+  def bmi_color_class(bmi)
+    return "text-gray-900 bg-gray-100" if bmi.nil?
+
+    if bmi < BMI_UNDERWEIGHT_THRESHOLD
+      "text-blue-700 bg-blue-50"
+    elsif bmi >= BMI_OBESE_THRESHOLD
+      "text-red-700 bg-red-50"
+    elsif bmi >= BMI_OVERWEIGHT_THRESHOLD
+      "text-yellow-700 bg-yellow-50"
+    else
+      "text-gray-900 bg-gray-100"
+    end
+  end
+
+  def appointment_color_class(appointment)
+    appointment.checked_in? ? "bg-green-100 border-green-200 text-green-800" : "bg-blue-50 border-blue-200 text-blue-700"
+  end
+
+  # ===========================================================================
   # Icons (Heroicons outline style)
   # ===========================================================================
 

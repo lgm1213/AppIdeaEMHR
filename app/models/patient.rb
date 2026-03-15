@@ -13,6 +13,7 @@
 # ==============================================================================
 
 class Patient < ApplicationRecord
+  RECENT_VISIT_THRESHOLD = 1.year
   # ===========================================================================
   # Associations with inverse_of
   # ===========================================================================
@@ -70,7 +71,7 @@ class Patient < ApplicationRecord
   scope :recent, -> { order(created_at: :desc) }
   scope :seen_recently, -> {
     joins(:encounters)
-      .where("encounters.visit_date > ?", 1.year.ago)
+      .where("encounters.visit_date > ?", RECENT_VISIT_THRESHOLD.ago)
       .distinct
   }
   scope :not_seen_recently, -> {
@@ -78,7 +79,7 @@ class Patient < ApplicationRecord
       .where(encounters: { id: nil })
       .or(
         left_joins(:encounters)
-          .where("encounters.visit_date < ?", 1.year.ago)
+          .where("encounters.visit_date < ?", RECENT_VISIT_THRESHOLD.ago)
       )
       .distinct
   }
