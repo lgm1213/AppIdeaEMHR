@@ -14,6 +14,11 @@ class Encounter < ApplicationRecord
   # --- Vitals Association ---
   has_one :vital, dependent: :destroy, inverse_of: :encounter
 
+  # --- Imaging Studies ordered at this encounter ---
+  has_many :imaging_studies, dependent: :nullify, inverse_of: :encounter
+
+
+
   # Shortcuts / Through Associations for easier access
   has_many :procedures, through: :encounter_procedures
 
@@ -36,6 +41,10 @@ class Encounter < ApplicationRecord
   accepts_nested_attributes_for :vital,
                                 allow_destroy: true,
                                 reject_if: :all_blank
+
+  accepts_nested_attributes_for :imaging_studies,
+                                allow_destroy: true,
+                                reject_if: ->(attrs) { attrs[:modality].blank? && attrs[:description].blank? }
 
   # ===========================================================================
   # Enums

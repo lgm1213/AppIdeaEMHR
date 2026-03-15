@@ -44,9 +44,21 @@
     
     <%# --- 3. Action Buttons --- %>
     <div class="mt-4 flex flex-shrink-0 md:ml-4 md:mt-0 gap-3">
-      <%= link_to "Back to Chart", patient_path(slug: @current_organization.slug, id: @encounter.patient.id, tab: 'clinical'), 
-          class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" 
+      <%= link_to "Back to Chart", patient_path(slug: @current_organization.slug, id: @encounter.patient.id, tab: 'clinical'),
+          class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
       %>
+
+      <%= link_to new_patient_imaging_study_path(
+            slug:       @current_organization.slug,
+            patient_id: @encounter.patient.id,
+            encounter_id: @encounter.id
+          ),
+          class: "inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" do %>
+        <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+        </svg>
+        Order Imaging
+      <% end %>
 
       <%= link_to superbill_encounter_path(slug: @current_organization.slug, id: @encounter.id), target: "_blank", class: "inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" do %>
         <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">

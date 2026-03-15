@@ -148,6 +148,14 @@ class EncountersController < ApplicationController
         :icd_code,
         :description,
         :_destroy
+      ],
+      imaging_studies_attributes: [
+        :id,
+        :modality,
+        :description,
+        :body_site,
+        :study_date,
+        :_destroy
       ]
     )
   end

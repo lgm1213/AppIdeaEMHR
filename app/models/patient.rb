@@ -34,6 +34,9 @@ class Patient < ApplicationRecord
   has_many :dmes, dependent: :destroy, inverse_of: :patient
   has_many :labs, dependent: :destroy, inverse_of: :patient
 
+  # Imaging
+  has_many :imaging_studies, dependent: :destroy, inverse_of: :patient
+
   # Care Teams
   has_many :care_team_members, dependent: :destroy, inverse_of: :patient
   has_many :providers, through: :care_team_members, source: :user

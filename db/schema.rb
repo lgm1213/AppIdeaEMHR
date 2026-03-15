@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_24_032855) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_15_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -190,6 +190,32 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_24_032855) do
     t.index ["code"], name: "index_icd_codes_on_code"
   end
 
+  create_table "imaging_studies", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "accession_number"
+    t.string "body_site"
+    t.datetime "created_at", null: false
+    t.string "description", null: false
+    t.uuid "encounter_id"
+    t.text "findings"
+    t.text "impression"
+    t.string "modality", null: false
+    t.uuid "ordered_by_id"
+    t.uuid "organization_id", null: false
+    t.uuid "patient_id", null: false
+    t.string "status", default: "ordered", null: false
+    t.date "study_date"
+    t.string "study_instance_uid"
+    t.datetime "updated_at", null: false
+    t.index ["accession_number"], name: "index_imaging_studies_on_accession_number", unique: true, where: "(accession_number IS NOT NULL)"
+    t.index ["encounter_id"], name: "index_imaging_studies_on_encounter_id"
+    t.index ["modality"], name: "index_imaging_studies_on_modality"
+    t.index ["ordered_by_id"], name: "index_imaging_studies_on_ordered_by_id"
+    t.index ["organization_id"], name: "index_imaging_studies_on_organization_id"
+    t.index ["patient_id"], name: "index_imaging_studies_on_patient_id"
+    t.index ["status"], name: "index_imaging_studies_on_status"
+    t.index ["study_instance_uid"], name: "index_imaging_studies_on_study_instance_uid", unique: true, where: "(study_instance_uid IS NOT NULL)"
+  end
+
   create_table "labs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.date "date"
@@ -367,6 +393,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_24_032855) do
   add_foreign_key "encounters", "providers"
   add_foreign_key "encounters", "users", column: "signed_by_id"
   add_foreign_key "facilities", "organizations"
+  add_foreign_key "imaging_studies", "encounters"
+  add_foreign_key "imaging_studies", "organizations"
+  add_foreign_key "imaging_studies", "patients"
+  add_foreign_key "imaging_studies", "providers", column: "ordered_by_id"
   add_foreign_key "labs", "patients"
   add_foreign_key "medications", "patients"
   add_foreign_key "medications", "users", column: "prescribed_by_id"

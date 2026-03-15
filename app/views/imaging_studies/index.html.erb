@@ -1,0 +1,91 @@
+<% content_for :title, "Imaging Studies — #{@patient.display_name}" %>
+
+<div class="max-w-5xl mx-auto px-4 py-8">
+
+  <%# --- Header --- %>
+  <div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="min-w-0 flex-1">
+      <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:tracking-tight">
+        Imaging Studies
+      </h2>
+      <p class="mt-1 text-sm text-gray-500">
+        <%= @patient.display_name %> &bull; <%= @patient.date_of_birth.strftime("%B %d, %Y") %>
+      </p>
+    </div>
+    <div class="mt-4 flex md:ml-4 md:mt-0 gap-3">
+      <%= link_to "Back to Chart",
+            patient_path(slug: @current_organization.slug, id: @patient.id),
+            class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+      <%= link_to "Order New Study",
+            new_patient_imaging_study_path(slug: @current_organization.slug, patient_id: @patient.id),
+            class: "inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" %>
+    </div>
+  </div>
+
+  <%# --- Studies Table --- %>
+  <div class="bg-white shadow sm:rounded-lg border border-gray-200 overflow-hidden">
+    <% if @imaging_studies.any? %>
+      <ul role="list" class="divide-y divide-gray-200">
+        <% @imaging_studies.each do |study| %>
+          <li>
+            <a href="<%= imaging_study_path(slug: @current_organization.slug, id: study.id) %>"
+               class="block hover:bg-gray-50 px-6 py-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4 min-w-0">
+
+                  <%# Modality badge %>
+                  <span class="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold uppercase shrink-0">
+                    <%= study.modality %>
+                  </span>
+
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold text-gray-900 truncate"><%= study.description %></p>
+                    <p class="text-xs text-gray-500 mt-0.5">
+                      <% if study.body_site.present? %><span class="font-medium"><%= study.body_site %></span> &bull; <% end %>
+                      <%= study.modality_display %>
+                      <% if study.accession_number.present? %> &bull; ACC# <%= study.accession_number %><% end %>
+                    </p>
+                    <p class="text-xs text-gray-400 mt-0.5">
+                      <% if study.ordered_by %><%= study.ordered_by.display_name %> &bull; <% end %>
+                      <% if study.study_date %>Study: <%= study.study_date.strftime("%b %d, %Y") %> &bull; <% end %>
+                      Ordered: <%= study.created_at.strftime("%b %d, %Y") %>
+                    </p>
+                  </div>
+                </div>
+
+                <div class="ml-4 flex items-center gap-3 shrink-0">
+                  <% if study.has_images? %>
+                    <span class="inline-flex items-center gap-1 text-xs text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
+                      <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/></svg>
+                      <%= pluralize(study.dicom_files.count, "image") %>
+                    </span>
+                  <% end %>
+                  <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset <%= study.status_badge_classes %>">
+                    <%= study.status.humanize %>
+                  </span>
+                  <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </div>
+              </div>
+            </a>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <div class="px-6 py-16 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+        </svg>
+        <p class="mt-4 text-sm font-medium text-gray-900">No imaging studies on record</p>
+        <p class="mt-1 text-sm text-gray-500">Order the first imaging study for this patient.</p>
+        <div class="mt-6">
+          <%= link_to "Order Imaging Study",
+                new_patient_imaging_study_path(slug: @current_organization.slug, patient_id: @patient.id),
+                class: "inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+</div>

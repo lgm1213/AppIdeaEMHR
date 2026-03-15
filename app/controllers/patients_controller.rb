@@ -12,6 +12,13 @@ class PatientsController < ApplicationController
     # Handles Tabs
     @active_tab = params[:tab] || "overview"
 
+    # Eager load imaging studies (with encounter + ordered_by) only for the clinical tab
+    if @active_tab == "clinical"
+      @imaging_studies = @patient.imaging_studies
+                                 .includes(:encounter, :ordered_by)
+                                 .order(created_at: :desc)
+    end
+
     # Lazy Loads Audit Logs only if requested
     if @active_tab == "audit"
       @audit_logs = PaperTrail::Version

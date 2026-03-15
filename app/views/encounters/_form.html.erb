@@ -119,7 +119,40 @@
     </div>
   </div>
 
-  <%# --- 7. Finalize Button --- %>
+  <%# --- 7. Imaging Study Orders --- %>
+  <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3 class="text-lg font-bold text-gray-900">Imaging Orders</h3>
+        <p class="text-xs text-gray-500 mt-0.5">Studies ordered during this encounter. DICOM files can be uploaded after saving.</p>
+      </div>
+    </div>
+
+    <div data-controller="nested-form">
+      <div data-nested-form-target="target" class="space-y-2">
+        <%= form.fields_for :imaging_studies do |img| %>
+          <%= render "imaging_study_fields", f: img %>
+        <% end %>
+      </div>
+
+      <button type="button"
+              data-action="nested-form#add"
+              class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-800">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add Imaging Order
+      </button>
+
+      <template data-nested-form-target="template">
+        <%= form.fields_for :imaging_studies, ImagingStudy.new, child_index: "NEW_RECORD" do |img| %>
+          <%= render "imaging_study_fields", f: img %>
+        <% end %>
+      </template>
+    </div>
+  </div>
+
+  <%# --- 8. Finalize Button --- %>
   <div class="pt-4 pb-12">
     <%= form.submit "Finalize Encounter", 
       class: %w[

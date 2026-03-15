@@ -39,3 +39,4 @@
 
 # Personal audit log — not for version control
 /ClaudeSuggestionAuditLog.md
+/.claude

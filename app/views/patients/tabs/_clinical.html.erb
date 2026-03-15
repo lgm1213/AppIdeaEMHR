@@ -147,10 +147,73 @@
       </div>
     </div>
 
+    <%# ── Imaging Studies ──────────────────────────────────────────────── %>
+    <div class="bg-white shadow sm:rounded-lg border border-gray-200 overflow-hidden">
+      <div class="px-4 py-3 bg-sky-50 border-b border-sky-100 flex justify-between items-center">
+        <h3 class="text-sm font-bold text-sky-900">Imaging Studies</h3>
+        <%= link_to "Order Study",
+              new_patient_imaging_study_path(slug: @current_organization.slug, patient_id: @patient.id),
+              class: "text-xs font-medium text-sky-700 hover:text-sky-900 hover:underline" %>
+      </div>
+
+      <ul class="divide-y divide-gray-100 max-h-72 overflow-y-auto">
+        <% (@imaging_studies || @patient.imaging_studies.includes(:encounter, :ordered_by).order(created_at: :desc)).each do |study| %>
+          <li>
+            <%= link_to imaging_study_path(slug: @current_organization.slug, id: study.id),
+                  class: "flex items-center justify-between px-4 py-3 hover:bg-sky-50 transition group" do %>
+
+              <div class="flex items-center gap-3 min-w-0">
+                <%# Modality pill %>
+                <span class="inline-flex items-center justify-center w-9 h-9 rounded-md bg-sky-100 text-sky-700 text-xs font-bold uppercase shrink-0">
+                  <%= study.modality %>
+                </span>
+
+                <div class="min-w-0">
+                  <p class="text-sm font-medium text-gray-900 truncate group-hover:text-sky-700">
+                    <%= study.description %>
+                  </p>
+                  <p class="text-xs text-gray-500 mt-0.5">
+                    <% if study.body_site.present? %><%= study.body_site %> &bull; <% end %>
+                    <%= study.study_date&.strftime("%m/%d/%Y") || study.created_at.strftime("%m/%d/%Y") %>
+                    <% if study.ordered_by %> &bull; <%= study.ordered_by.display_name %><% end %>
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 ml-2 shrink-0">
+                <% if study.has_images? %>
+                  <span class="text-xs text-green-600 font-medium">
+                    <%= pluralize(study.dicom_files.count, "img") %>
+                  </span>
+                <% end %>
+                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset <%= study.status_badge_classes %>">
+                  <%= study.status.humanize %>
+                </span>
+                <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+
+            <% end %>
+          </li>
+        <% end %>
+
+        <% if (@imaging_studies || @patient.imaging_studies).empty? %>
+          <li class="px-4 py-3 text-sm text-gray-500 italic">No imaging studies on record.</li>
+        <% end %>
+      </ul>
+
+      <div class="bg-gray-50 px-4 py-2 border-t border-gray-200 text-right">
+        <%= link_to "View all studies →",
+              patient_imaging_studies_path(slug: @current_organization.slug, patient_id: @patient.id),
+              class: "text-xs font-medium text-sky-700 hover:text-sky-900 hover:underline" %>
+      </div>
+    </div>
+
   </div>
 
   <div class="space-y-6">
-    
+
     <div class="bg-white shadow sm:rounded-lg border border-gray-200 overflow-hidden">
       <div class="px-4 py-3 bg-indigo-50 border-b border-indigo-100 flex justify-between items-center">
         <h3 class="text-sm font-bold text-indigo-900">Active Medications</h3>

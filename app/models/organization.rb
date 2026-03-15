@@ -28,10 +28,11 @@ class Organization < ApplicationRecord
   has_many :patients, dependent: :destroy, inverse_of: :organization
 
   # Medical Records & Billing
-  has_many :appointments, dependent: :destroy, inverse_of: :organization
-  has_many :encounters, dependent: :destroy, inverse_of: :organization
-  has_many :procedures, dependent: :destroy, inverse_of: :organization
-  has_many :messages, dependent: :destroy, inverse_of: :organization
+  has_many :appointments,     dependent: :destroy, inverse_of: :organization
+  has_many :encounters,       dependent: :destroy, inverse_of: :organization
+  has_many :procedures,       dependent: :destroy, inverse_of: :organization
+  has_many :messages,         dependent: :destroy, inverse_of: :organization
+  has_many :imaging_studies,  dependent: :destroy, inverse_of: :organization
 
   # Nested attributes for signup form
   accepts_nested_attributes_for :users

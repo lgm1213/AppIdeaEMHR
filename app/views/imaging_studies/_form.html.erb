@@ -1,0 +1,172 @@
+<%# Shared form for new/edit imaging study %>
+<%= form_with model: [@patient, imaging_study],
+              url: form_url,
+              method: form_method,
+              multipart: true,
+              class: "space-y-6" do |f| %>
+
+  <%# Validation errors %>
+  <% if imaging_study.errors.any? %>
+    <div class="rounded-md bg-red-50 p-4 border border-red-200">
+      <ul class="list-disc list-inside text-sm text-red-700 space-y-1">
+        <% imaging_study.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# ── Order Details ──────────────────────────────────────────────── %>
+  <div class="bg-white shadow sm:rounded-lg border border-gray-200">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-sm font-semibold text-gray-900">Order Details</h3>
+    </div>
+    <div class="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+      <%# Modality %>
+      <div>
+        <%= f.label :modality, class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <%= f.select :modality,
+              ImagingStudy::MODALITIES.map { |m| ["#{m} — #{ImagingStudy::MODALITY_LABELS[m]}", m] },
+              { include_blank: "Select modality…" },
+              class: "mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6",
+              required: true %>
+      </div>
+
+      <%# Body Site %>
+      <div>
+        <%= f.label :body_site, class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <%= f.text_field :body_site,
+              placeholder: "e.g. Chest, Right Knee, Abdomen",
+              class: "mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" %>
+      </div>
+
+      <%# Description (full width) %>
+      <div class="sm:col-span-2">
+        <%= f.label :description, class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <%= f.text_field :description,
+              placeholder: "e.g. Chest X-Ray 2 Views, MRI Brain w/o Contrast",
+              class: "mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6",
+              required: true %>
+      </div>
+
+      <%# Ordering Provider %>
+      <div>
+        <%= f.label :ordered_by_id, "Ordering Provider", class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <%= f.select :ordered_by_id,
+              @providers.map { |p| [p.display_name, p.id] },
+              { include_blank: "Select provider…" },
+              class: "mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6" %>
+      </div>
+
+      <%# Linked Encounter %>
+      <div>
+        <%= f.label :encounter_id, "Linked Encounter (optional)", class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <%= f.select :encounter_id,
+              @encounters.map { |e| ["#{e.visit_date.strftime('%b %d, %Y')} — #{e.provider.display_name}", e.id] },
+              { include_blank: "None" },
+              class: "mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6" %>
+      </div>
+
+      <%# Study Date %>
+      <div>
+        <%= f.label :study_date, class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <%= f.date_field :study_date,
+              class: "mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" %>
+      </div>
+
+      <%# Status %>
+      <div>
+        <%= f.label :status, class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <%= f.select :status,
+              ImagingStudy::STATUSES.map { |s| [s.humanize, s] },
+              {},
+              class: "mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6" %>
+      </div>
+
+    </div>
+  </div>
+
+  <%# ── DICOM Identifiers ───────────────────────────────────────────── %>
+  <div class="bg-white shadow sm:rounded-lg border border-gray-200">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-sm font-semibold text-gray-900">DICOM Identifiers</h3>
+      <p class="text-xs text-gray-500 mt-0.5">Populated by the radiology department or DICOM header.</p>
+    </div>
+    <div class="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+      <div>
+        <%= f.label :accession_number, class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <%= f.text_field :accession_number,
+              placeholder: "Radiology dept. order number",
+              class: "mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 font-mono" %>
+      </div>
+
+      <div>
+        <%= f.label :study_instance_uid, "Study Instance UID", class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <%= f.text_field :study_instance_uid,
+              placeholder: "1.2.840.10008.x.x.x…",
+              class: "mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 font-mono text-xs" %>
+      </div>
+
+    </div>
+  </div>
+
+  <%# ── Radiology Report ────────────────────────────────────────────── %>
+  <div class="bg-white shadow sm:rounded-lg border border-gray-200">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-sm font-semibold text-gray-900">Radiology Report</h3>
+      <p class="text-xs text-gray-500 mt-0.5">Completed by the radiologist after interpretation.</p>
+    </div>
+    <div class="px-6 py-5 space-y-5">
+      <div>
+        <%= f.label :findings, class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <%= f.text_area :findings, rows: 4,
+              placeholder: "Describe the radiological findings…",
+              class: "mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" %>
+      </div>
+      <div>
+        <%= f.label :impression, class: "block text-sm font-medium leading-6 text-gray-900" %>
+        <%= f.text_area :impression, rows: 3,
+              placeholder: "Clinical impression / conclusion…",
+              class: "mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" %>
+      </div>
+    </div>
+  </div>
+
+  <%# ── DICOM File Upload ───────────────────────────────────────────── %>
+  <div class="bg-white shadow sm:rounded-lg border border-gray-200">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-sm font-semibold text-gray-900">DICOM Files</h3>
+      <p class="text-xs text-gray-500 mt-0.5">Upload one or more .dcm files. Multiple series can be added after saving.</p>
+    </div>
+    <div class="px-6 py-5">
+      <label class="block text-sm font-medium leading-6 text-gray-900 mb-2" for="imaging_study_dicom_files">
+        Select DICOM files
+      </label>
+      <%= f.file_field :dicom_files,
+            multiple: true,
+            accept: ".dcm,application/dicom",
+            id: "imaging_study_dicom_files",
+            class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer" %>
+
+      <% if imaging_study.dicom_files.attached? %>
+        <div class="mt-4 space-y-1">
+          <p class="text-xs font-medium text-gray-700"><%= pluralize(imaging_study.dicom_files.count, "file") %> currently attached:</p>
+          <% imaging_study.dicom_files.each do |f_att| %>
+            <p class="text-xs text-gray-500 font-mono"><%= f_att.filename %></p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Submit ──────────────────────────────────────────────────────── %>
+  <div class="flex justify-end gap-3">
+    <%= link_to "Cancel",
+          patient_imaging_studies_path(slug: @current_organization.slug, patient_id: @patient.id),
+          class: "rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+    <%= f.submit class: "rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer" %>
+  </div>
+
+<% end %>

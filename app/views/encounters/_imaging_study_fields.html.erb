@@ -1,0 +1,56 @@
+<%# Nested fields for a single imaging study ordered during an encounter.
+    Inherits patient, organization, and ordered_by from the parent encounter
+    via ImagingStudy#inherit_from_encounter before_validation callback. %>
+
+<div class="nested-form-wrapper flex gap-3 items-start p-3 bg-gray-50 rounded-lg border border-gray-200"
+     data-new-record="<%= f.object.new_record? %>">
+
+  <%= f.hidden_field :_destroy, class: "destroy-field" %>
+
+  <%# Modality %>
+  <div class="w-40 shrink-0">
+    <%= f.label :modality, class: "block text-xs font-medium text-gray-600 mb-1" %>
+    <%= f.select :modality,
+          ImagingStudy::MODALITIES.map { |m| ["#{m} — #{ImagingStudy::MODALITY_LABELS[m]}", m] },
+          { include_blank: "Select…" },
+          class: "block w-full rounded-md border-0 py-1.5 pl-2 pr-8 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600",
+          required: true %>
+  </div>
+
+  <%# Description %>
+  <div class="flex-1 min-w-0">
+    <%= f.label :description, class: "block text-xs font-medium text-gray-600 mb-1" %>
+    <%= f.text_field :description,
+          placeholder: "e.g. Chest X-Ray 2 Views",
+          class: "block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600",
+          required: true %>
+  </div>
+
+  <%# Body Site %>
+  <div class="w-36 shrink-0">
+    <%= f.label :body_site, "Body Site", class: "block text-xs font-medium text-gray-600 mb-1" %>
+    <%= f.text_field :body_site,
+          placeholder: "e.g. Chest",
+          class: "block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600" %>
+  </div>
+
+  <%# Study Date %>
+  <div class="w-36 shrink-0">
+    <%= f.label :study_date, "Date", class: "block text-xs font-medium text-gray-600 mb-1" %>
+    <%= f.date_field :study_date,
+          class: "block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600" %>
+  </div>
+
+  <%# Remove button %>
+  <div class="pt-5 shrink-0">
+    <button type="button"
+            data-action="nested-form#remove"
+            aria-label="Remove imaging study"
+            class="text-gray-400 hover:text-red-600 transition-colors">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
+</div>

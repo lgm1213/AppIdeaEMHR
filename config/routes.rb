@@ -56,7 +56,13 @@ Rails.application.routes.draw do
       resources :dmes, only: [ :create, :destroy ]
       resources :labs, only: [ :create, :destroy ]
       resources :care_team_members, only: [ :create, :destroy ]
+
+      # Imaging Studies (ordered from patient chart or encounter)
+      resources :imaging_studies, only: [ :index, :new, :create ]
     end
+
+    # Imaging Studies (shallow routes for viewer & editing)
+    resources :imaging_studies, only: [ :show, :edit, :update, :destroy ]
 
     # Superbill / Billing
     resources :encounters, only: [ :show, :edit, :update, :destroy ] do

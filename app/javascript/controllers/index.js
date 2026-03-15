@@ -7,6 +7,9 @@ import { application } from "controllers/application"
 import BmiController from "controllers/bmi_controller"
 application.register("bmi", BmiController)
 
+import DicomViewerController from "controllers/dicom_viewer_controller"
+application.register("dicom-viewer", DicomViewerController)
+
 import CarouselController from "controllers/carousel_controller"
 application.register("carousel", CarouselController)
 

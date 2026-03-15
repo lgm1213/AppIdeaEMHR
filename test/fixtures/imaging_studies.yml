@@ -1,0 +1,23 @@
+one:
+  organization: one
+  patient: one
+  encounter: one
+  ordered_by: one
+  modality: CR
+  description: "Chest X-Ray 2 Views"
+  body_site: "Chest"
+  accession_number: "ACC-2026-001"
+  study_instance_uid: "1.2.840.10008.1.2.1.001"
+  status: completed
+  study_date: <%= Date.yesterday %>
+  findings: "No acute cardiopulmonary process."
+  impression: "Normal chest."
+
+two:
+  organization: one
+  patient: one
+  modality: MR
+  description: "MRI Brain w/o Contrast"
+  body_site: "Brain"
+  status: ordered
+  study_date: <%= Date.today %>
