@@ -17,3 +17,33 @@ two:
   duration_minutes: 15
   status: scheduled
   reason: "Follow Up"
+
+checked_in_appt:
+  organization: one
+  patient: one
+  provider: one
+  start_time: "2027-01-03 09:00:00"
+  end_time: "2027-01-03 09:30:00"
+  duration_minutes: 30
+  status: checked_in
+  reason: "Lab Review"
+
+completed_appt:
+  organization: one
+  patient: two
+  provider: one
+  start_time: "2025-06-15 10:00:00"
+  end_time: "2025-06-15 10:45:00"
+  duration_minutes: 45
+  status: completed
+  reason: "Annual Physical"
+
+cancelled_appt:
+  organization: one
+  patient: one
+  provider: one
+  start_time: "2027-01-10 11:00:00"
+  end_time: "2027-01-10 11:30:00"
+  duration_minutes: 30
+  status: cancelled
+  reason: "Cancelled by patient"

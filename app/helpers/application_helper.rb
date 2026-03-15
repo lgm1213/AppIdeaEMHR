@@ -227,7 +227,17 @@ module ApplicationHelper
   end
 
   def appointment_color_class(appointment)
-    appointment.checked_in? ? "bg-green-100 border-green-200 text-green-800" : "bg-blue-50 border-blue-200 text-blue-700"
+    case appointment.status.to_sym
+    when :scheduled    then "bg-blue-50 border-blue-200 text-blue-700"
+    when :confirmed    then "bg-indigo-50 border-indigo-200 text-indigo-700"
+    when :checked_in   then "bg-green-100 border-green-200 text-green-800"
+    when :in_progress  then "bg-yellow-50 border-yellow-200 text-yellow-700"
+    when :completed    then "bg-emerald-50 border-emerald-200 text-emerald-700"
+    when :cancelled    then "bg-red-50 border-red-200 text-red-500"
+    when :no_show      then "bg-orange-50 border-orange-200 text-orange-700"
+    when :rescheduled  then "bg-purple-50 border-purple-200 text-purple-700"
+    else                    "bg-gray-50 border-gray-200 text-gray-600"
+    end
   end
 
   # ===========================================================================

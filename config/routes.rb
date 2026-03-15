@@ -32,7 +32,11 @@ Rails.application.routes.draw do
     resources :procedures
 
     # Schedule
-    resources :appointments
+    resources :appointments do
+      member do
+        patch :cancel
+      end
+    end
 
     resources :patients do
       # CCDA XML Export
